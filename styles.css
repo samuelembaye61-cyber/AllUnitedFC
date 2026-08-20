@@ -1,0 +1,70 @@
+
+/* Navbar container */
+nav {
+  background-color: #1e1d1d;
+  display: flex;
+  align-items: center;
+  padding: 0 2rem;
+}
+
+/* Logo wrapper — flex row with gap */
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  padding: .75rem 0;
+}
+
+/* Red underline accent below the nav */
+.nav-logo::after {
+  content: '';
+  display: block;
+  width: 100%;
+  height: 2px;
+  background-color: #decccc;
+  margin-top: 40px;
+}
+
+/* Logo circle */
+.nav-crest {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 1px solid #fff;
+  flex-shrink: 0;
+}
+
+/* Logo image inside the circle */
+.nav-crest img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Club name text */
+.nav-logo span {
+  color: #fff;
+  font-weight: 500;
+  font-size: 1.1rem;
+}
+/* Navbar links container */
+.nav-links {
+  display: flex;
+  gap: 1.5rem;
+  margin-left: auto;
+}
+/* hero sectioin */
+.hero 
+{
+  background-color: #e5a1a1;
+  color: #f1eaea;
+  text-align: center;
+  padding: 0 2rem;
+}
+.hero ::before
+{
+  content: '';
+  
+}
