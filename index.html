@@ -1,32 +1,141 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>All United FC</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css" />
+ 
 </head>
 <body>
 
+  <!-- NAV -->
   <nav>
     <div class="nav-logo">
-      <div class="nav-crest">
-        <img src="images/PHOTO.jpg" alt="All United FC Logo">
-      </div>
+      <div class="crest nav-crest"><img src="images/PHOTO.jpg" alt="All United FC crest" /></div>
       <span>All United FC</span>
     </div>
     <div class="nav-links">
-      <a href="index.html">Home</a>
-      <a href="about.html">About</a>
-      <a href="team.html">Team</a>
-      <a href="contact.html">Contact</a>
+      <a href="#news">News</a>
+      <a href="#matches">Matches</a>
+      <a href="#roster">Roster</a>
+      <a href="#join">Join Us</a>
     </div>
   </nav>
-<div class="hero">
-    <div class="hero-content"> 
-  <h1>Welcome to All United FC</h1>
-  <p>Unity represents our strength, and together we rise</p>
-</div>
 
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-content">
+      <div class="badge">Adult Recreational League</div>
+      <h1>All <span>United</span> FC</h1>
+      <p>One club. One mission. Play hard, play together, play united.</p>
+      <a href="#matches" class="btn">View Schedule</a>
+      <a href="#roster" class="btn btn-outline">Meet the Team</a>
+    </div>
+    <div class="hero-crest">
+      <img src="images/PHOTO.jpg" alt="All United FC crest" />
+    </div>
+  </div>
+
+  <!-- NEWS -->
+  <section class="news" id="news">
+    <div class="container">
+      <div class="section-label">Latest</div>
+      <div class="section-title">News & Announcements</div>
+      <div class="divider"></div>
+      <div class="news-grid" id="home-news-grid">
+        <!-- News cards are loaded from the Django API. -->
+        <p class="loading">Loading news...</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- MATCHES -->
+  <section class="matches" id="matches">
+    <div class="container">
+      <div class="section-label">Fixtures</div>
+      <div class="section-title">Match Schedule & Results</div>
+      <div class="divider"></div>
+      <div class="matches-tabs">
+        <div class="tab active" onclick="switchTab('results', this)">Results</div>
+        <div class="tab" onclick="switchTab('upcoming', this)">Upcoming</div>
+      </div>
+      <div id="results-list">
+        <p class="loading">Loading results...</p>
+      </div>
+      <div id="upcoming-list" style="display:none;">
+        <p class="loading">Loading upcoming matches...</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ROSTER -->
+  <section class="roster" id="roster">
+    <div class="container">
+      <div class="section-label">The Squad</div>
+      <div class="section-title">Team Roster</div>
+      <div class="divider"></div>
+      <div class="roster-grid" id="roster-grid">
+        <p class="loading">Loading players...</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROSPECT FORM -->
+  <section class="join" id="join">
+    <div class="container">
+      <div class="section-label">Get Involved</div>
+      <div class="section-title">Interested in Joining?</div>
+      <div class="divider"></div>
+      <div class="form-card">
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" id="prospect-name" placeholder="Your name" />
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="prospect-email" placeholder="your@email.com" />
+        </div>
+        <div class="form-group">
+          <label>Phone</label>
+          <input type="text" id="prospect-phone" placeholder="+1 (000) 000-0000" />
+        </div>
+        <div class="form-group">
+          <label>Preferred Position</label>
+          <select id="prospect-position">
+            <option value="">Select a position</option>
+            <option>Goalkeeper</option>
+            <option>Defender</option>
+            <option>Midfielder</option>
+            <option>Forward</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Message (optional)</label>
+          <textarea id="prospect-message" placeholder="Tell us a bit about yourself..."></textarea>
+        </div>
+        <button class="btn" onclick="submitProspect()">Submit Interest</button>
+        <p id="form-feedback" class="form-feedback"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="crest footer-crest"><img src="images/PHOTO.jpg" alt="All United FC crest" /></div>
+    <h3>All United FC</h3>
+    <p>Adult Recreational League · Durham, NC</p>
+    <div class="footer-links">
+      <a href="#news">News</a>
+      <a href="#matches">Matches</a>
+      <a href="#roster">Roster</a>
+      <a href="#join">Join Us</a>
+    </div>
+    <div class="copy">© 2026 All United FC. All rights reserved.</div>
+  </footer>
+
+  <!-- SCRIPTS -->
+  <script src="players.js"></script>
+  <script src="news.js"></script>
 </body>
 </html>

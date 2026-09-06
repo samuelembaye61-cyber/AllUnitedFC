@@ -1,0 +1,74 @@
+[
+  {
+    "model": "club.match",
+    "pk": 1,
+    "fields": {
+      "date": "2026-09-06T15:45:00Z",
+      "home_team": "All United FC",
+      "away_team": "Kabsah FC",
+      "location": "Merrick-Moore Park · Field 1",
+      "home_score": null,
+      "away_score": null
+    }
+  },
+  {
+    "model": "club.match",
+    "pk": 2,
+    "fields": {
+      "date": "2026-09-13T15:45:00Z",
+      "home_team": "Inter FC",
+      "away_team": "All United FC",
+      "location": "Merrick-Moore Park · Field 1",
+      "home_score": null,
+      "away_score": null
+    }
+  },
+  {
+    "model": "club.match",
+    "pk": 3,
+    "fields": {
+      "date": "2026-09-20T15:45:00Z",
+      "home_team": "All United FC",
+      "away_team": "Golden Falcon International",
+      "location": "Merrick-Moore Park · Field 2",
+      "home_score": null,
+      "away_score": null
+    }
+  },
+  {
+    "model": "club.match",
+    "pk": 4,
+    "fields": {
+      "date": "2026-09-27T15:45:00Z",
+      "home_team": "Kabsah FC",
+      "away_team": "All United FC",
+      "location": "Merrick-Moore Park · Field 1",
+      "home_score": null,
+      "away_score": null
+    }
+  },
+  {
+    "model": "club.match",
+    "pk": 5,
+    "fields": {
+      "date": "2026-10-04T15:45:00Z",
+      "home_team": "All United FC",
+      "away_team": "Inter FC",
+      "location": "Merrick-Moore Park · Field 1",
+      "home_score": null,
+      "away_score": null
+    }
+  },
+  {
+    "model": "club.match",
+    "pk": 6,
+    "fields": {
+      "date": "2026-10-11T15:45:00Z",
+      "home_team": "Golden Falcon International",
+      "away_team": "All United FC",
+      "location": "Merrick-Moore Park · Field 2",
+      "home_score": null,
+      "away_score": null
+    }
+  }
+]

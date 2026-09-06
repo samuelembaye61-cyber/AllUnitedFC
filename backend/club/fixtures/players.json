@@ -1,0 +1,192 @@
+[
+  {
+    "model": "club.player",
+    "pk": 1,
+    "fields": {
+      "name": "Eric Tuyishime",
+      "number": 25,
+      "position": "Goalkeeper",
+      "photo": "images/PHOTO.jpg"
+    }
+  },
+  {
+    "model": "club.player",
+    "pk": 2,
+    "fields": {
+      "name": "Eyoal Ghebrendrias",
+      "number": 6,
+      "position": "Center Midfielder",
+      "photo": "images/PHOTO.jpg"
+    }
+  },
+  {
+    "model": "club.player",
+    "pk": 3,
+    "fields": {
+      "name": "Joe Njeru",
+      "number": 20,
+      "position": "Right Back",
+      "photo": "images/PHOTO.jpg"
+    }
+  },
+  {
+    "model": "club.player",
+    "pk": 4,
+    "fields": {
+      "name": "Daniel Tawala",
+      "number": 14,
+      "position": "Left Wing",
+      "photo": "images/PHOTO.jpg"
+    }
+  },
+  {
+    "model": "club.player",
+    "pk": 5,
+    "fields": {
+      "name": "Prince Nshuti",
+      "number": 9,
+      "position": "Striker",
+      "photo": "images/PHOTO.jpg"
+    }
+  },
+  {
+    "model": "club.player",
+    "pk": 6,
+    "fields": {
+      "name": "Austin Parsons",
+      "number": 22,
+      "position": "Left Back",
+      "photo": "images/PHOTO.jpg"
+    }
+  },
+  {
+    "model": "club.player",
+    "pk": 7,
+    "fields": {
+      "name": "Ayri Webb",
+      "number": 11,
+      "position": "Right Wing",
+      "photo": "images/PHOTO.jpg"
+    }
+  },
+  {
+    "model": "club.player",
+    "pk": 8,
+    "fields": {
+      "name": "Jean Franco Tafur",
+      "number": 12,
+      "position": "Center Midfielder",
+      "photo": "images/PHOTO.jpg"
+    }
+  },
+  {
+    "model": "club.player",
+    "pk": 9,
+    "fields": {
+      "name": "Muhirwa Iradukunda",
+      "number": 4,
+      "position": "Center Back",
+      "photo": "images/PHOTO.jpg"
+    }
+  },
+  {
+    "model": "club.player",
+    "pk": 10,
+    "fields": {
+      "name": "Jay Wendell",
+      "number": 3,
+      "position": "Center Back",
+      "photo": "images/PHOTO.jpg"
+    }
+  },
+  {
+    "model": "club.player",
+    "pk": 11,
+    "fields": {
+      "name": "Kofi Boateng",
+      "number": 10,
+      "position": "Striker",
+      "photo": "images/PHOTO.jpg"
+    }
+  },
+  {
+    "model": "club.player",
+    "pk": 12,
+    "fields": {
+      "name": "Simon Tsegay",
+      "number": 7,
+      "position": "Left Wing",
+      "photo": "images/PHOTO.jpg"
+    }
+  },
+  {
+    "model": "club.player",
+    "pk": 13,
+    "fields": {
+      "name": "Innocent Ngamije",
+      "number": 18,
+      "position": "Center Midfielder",
+      "photo": "images/PHOTO.jpg"
+    }
+  },
+  {
+    "model": "club.player",
+    "pk": 14,
+    "fields": {
+      "name": "Mauricio Rodriguez",
+      "number": 15,
+      "position": "Central Defensive Midfielder",
+      "photo": "images/PHOTO.jpg"
+    }
+  },
+  {
+    "model": "club.player",
+    "pk": 15,
+    "fields": {
+      "name": "Brendan Berkel",
+      "number": 13,
+      "position": "Right Wing",
+      "photo": "images/PHOTO.jpg"
+    }
+  },
+  {
+    "model": "club.player",
+    "pk": 16,
+    "fields": {
+      "name": "Chinedu Okonkwo",
+      "number": 8,
+      "position": "Center Midfielder",
+      "photo": "images/PHOTO.jpg"
+    }
+  },
+  {
+    "model": "club.player",
+    "pk": 17,
+    "fields": {
+      "name": "Terence Agaromba",
+      "number": 16,
+      "position": "Player",
+      "photo": "images/PHOTO.jpg"
+    }
+  },
+  {
+    "model": "club.player",
+    "pk": 18,
+    "fields": {
+      "name": "Joss Warren",
+      "number": 5,
+      "position": "Center Back",
+      "photo": "images/PHOTO.jpg"
+    }
+  },
+  {
+    "model": "club.player",
+    "pk": 19,
+    "fields": {
+      "name": "Yohans Beraki",
+      "number": 2,
+      "position": "Left Back",
+      "photo": "images/PHOTO.jpg"
+    }
+  }
+]
