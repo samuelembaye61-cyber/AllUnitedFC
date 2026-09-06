@@ -1,5 +1,9 @@
 // ─── CONFIG ───────────────────────────────────────────────
-const API = "http://127.0.0.1:8001/api";
+const API = window.location.protocol === "file:"
+  ? "http://127.0.0.1:8001/api"
+  : window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost"
+    ? "/api"
+    : "https://api.allunitedfc.com/api";
 
 // ─── ON PAGE LOAD ─────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", () => {
@@ -30,32 +34,33 @@ async function loadPlayers() {
   }
 }
 // ─── MATCHES ──────────────────────────────────────────────
-const matches = [
-  { date: "2026-09-06T15:45:00", home_team: "All United FC", away_team: "Kabsah FC", location: "Merrick-Moore Park · Field 1" },
-  { date: "2026-09-13T15:45:00", home_team: "Inter FC", away_team: "All United FC", location: "Merrick-Moore Park · Field 1" },
-  { date: "2026-09-20T15:45:00", home_team: "All United FC", away_team: "Golden Falcon International", location: "Merrick-Moore Park · Field 2" },
-  { date: "2026-09-27T15:45:00", home_team: "Kabsah FC", away_team: "All United FC", location: "Merrick-Moore Park · Field 1" },
-  { date: "2026-10-04T15:45:00", home_team: "All United FC", away_team: "Inter FC", location: "Merrick-Moore Park · Field 1" },
-  { date: "2026-10-11T15:45:00", home_team: "Golden Falcon International", away_team: "All United FC", location: "Merrick-Moore Park · Field 2" }
-];
+
 
 async function loadMatches() {
   const results  = document.getElementById("results-list");
   const upcoming = document.getElementById("upcoming-list");
+  const all      = document.getElementById("all-list");
+  const points   = document.getElementById("points-list");
+
   try {
     const response = await fetch(`${API}/matches/`);
     if (!response.ok) throw new Error("Matches request failed");
     const data = await response.json();
     const today = new Date();
 
-    const past = data.filter(match => new Date(match.date) < today);
-    const future = data.filter(match => new Date(match.date) >= today);
+    const completed = data.filter(match => Number.isInteger(match.home_score) && Number.isInteger(match.away_score));
+    const past = completed.filter(match => new Date(match.date) < today);
+    const future = data.filter(match => !completed.includes(match) || new Date(match.date) >= today);
 
     results.innerHTML = past.length ? past.map(match => matchCard(match)).join("") : "<p class=\"loading\">No results yet.</p>";
     upcoming.innerHTML = future.length ? future.map(match => matchCard(match, true)).join("") : "<p class=\"loading\">No upcoming matches.</p>";
+    all.innerHTML = data.length ? data.map(match => matchCard(match, !completed.includes(match))).join("") : "<p class=\"loading\">No matches yet.</p>";
+    points.innerHTML = renderPointsTable(getPointsTable(completed));
   } catch (error) {
     results.innerHTML = "<p class=\"loading\">Could not connect to the match service.</p>";
     upcoming.innerHTML = "";
+    all.innerHTML = "";
+    points.innerHTML = "<p class=\"loading\">Could not load the points table.</p>";
     console.error(error);
   }
 }
@@ -77,7 +82,76 @@ function matchCard(m, upcoming = false) {
       ${score}
     </div>`;
 }
+function getPointsTable(matches) {
+  const table = {};
+  matches.forEach(m => {
+    const homeScore = Number(m.home_score);
+    const awayScore = Number(m.away_score);
 
+    if (!table[m.home_team]) {
+      table[m.home_team] = { team: m.home_team, played: 0, won: 0, drawn: 0, lost: 0, goalsFor: 0, goalsAgainst: 0, points: 0 };
+    }
+    if (!table[m.away_team]) {
+      table[m.away_team] = { team: m.away_team, played: 0, won: 0, drawn: 0, lost: 0, goalsFor: 0, goalsAgainst: 0, points: 0 };
+    }
+
+    const home = table[m.home_team];
+    const away = table[m.away_team];
+    home.played++;
+    away.played++;
+    home.goalsFor += homeScore;
+    home.goalsAgainst += awayScore;
+    away.goalsFor += awayScore;
+    away.goalsAgainst += homeScore;
+
+    if (homeScore > awayScore) {
+      home.won++;
+      home.points += 3;
+      away.lost++;
+    } else if (homeScore < awayScore) {
+      away.won++;
+      away.points += 3;
+      home.lost++;
+    } else {
+      home.drawn++;
+      home.points++;
+      away.drawn++;
+      away.points++;
+    }
+  });
+
+  return Object.values(table).sort((a, b) => {
+    const goalDifference = (team) => team.goalsFor - team.goalsAgainst;
+    return b.points - a.points || goalDifference(b) - goalDifference(a) || b.goalsFor - a.goalsFor;
+  });
+}
+
+function renderPointsTable(table) {
+  if (!table.length) return "<p class=\"loading\">No completed matches yet.</p>";
+  return `
+    <div class="points-table-wrap">
+      <table class="points-table">
+        <thead>
+          <tr><th>#</th><th>Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GD</th><th>Pts</th></tr>
+        </thead>
+        <tbody>
+          ${table.map((team, index) => `
+            <tr>
+              <td>${index + 1}</td>
+              <th scope="row">${team.team}</th>
+              <td>${team.played}</td>
+              <td>${team.won}</td>
+              <td>${team.drawn}</td>
+              <td>${team.lost}</td>
+              <td>${team.goalsFor - team.goalsAgainst}</td>
+              <td><strong>${team.points}</strong></td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
 function getOutcome(m) {
   const auHome = m.home_team.toLowerCase().includes("all united");
   const au  = auHome ? m.home_score : m.away_score;
@@ -89,6 +163,8 @@ function getOutcome(m) {
 function switchTab(tab, el) {
   document.getElementById("results-list").style.display  = tab === "results"  ? "block" : "none";
   document.getElementById("upcoming-list").style.display = tab === "upcoming" ? "block" : "none";
+  document.getElementById("all-list").style.display = tab === "all" ? "block" : "none";
+  document.getElementById("points-list").style.display = tab === "points" ? "block" : "none";
   document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
   el.classList.add("active");
 }
@@ -105,16 +181,30 @@ async function submitProspect() {
     message:  document.getElementById("prospect-message").value.trim(),
   };
 
+  const emailInput = document.getElementById("prospect-email");
+
   if (!payload.name || !payload.email || !payload.position) {
     feedback.style.color = "red";
     feedback.textContent = "Please fill in name, email and position.";
     return;
   }
 
+  if (!emailInput.checkValidity()) {
+    feedback.style.color = "red";
+    feedback.textContent = "Please enter a valid email address.";
+    emailInput.focus();
+    return;
+  }
+
   try {
+    const csrfResponse = await fetch(`${API}/csrf/`);
+    const { csrfToken } = await csrfResponse.json();
     const response = await fetch(`${API}/prospects/`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": csrfToken
+      },
       body: JSON.stringify(payload)
     });
     const result = await response.json();

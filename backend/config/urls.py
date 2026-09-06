@@ -15,6 +15,8 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
+from django.conf import settings
+from django.conf.urls.static import static
 from django.urls import include, path, re_path
 from django.views.static import serve
 from pathlib import Path
@@ -24,6 +26,12 @@ FRONTEND_DIR = Path(__file__).resolve().parents[2]
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('club.urls')),
+]
+
+if settings.DEBUG:
+	urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+urlpatterns += [
     path('', serve, {'document_root': FRONTEND_DIR, 'path': 'index.html'}),
     re_path(r'^(?P<path>.*)$', serve, {'document_root': FRONTEND_DIR}),
 ]

@@ -59,12 +59,20 @@
       <div class="matches-tabs">
         <div class="tab active" onclick="switchTab('results', this)">Results</div>
         <div class="tab" onclick="switchTab('upcoming', this)">Upcoming</div>
+        <div class="tab" onclick="switchTab('all', this)">All Matches</div>
+        <div class="tab" onclick="switchTab('points', this)">Table</div>
       </div>
       <div id="results-list">
         <p class="loading">Loading results...</p>
       </div>
       <div id="upcoming-list" style="display:none;">
         <p class="loading">Loading upcoming matches...</p>
+      </div>
+      <div id="all-list" style="display:none;">
+        <p class="loading">Loading all matches...</p>
+      </div>
+      <div id="points-list" style="display:none;">
+        <p class="loading">Loading points table...</p>
       </div>
     </div>
   </section>
@@ -90,11 +98,11 @@
       <div class="form-card">
         <div class="form-group">
           <label>Full Name</label>
-          <input type="text" id="prospect-name" placeholder="Your name" />
+          <input type="text" id="prospect-name" placeholder="Your name" required />
         </div>
         <div class="form-group">
           <label>Email</label>
-          <input type="email" id="prospect-email" placeholder="your@email.com" />
+          <input type="email" id="prospect-email" placeholder="your@email.com" required />
         </div>
         <div class="form-group">
           <label>Phone</label>
@@ -102,7 +110,7 @@
         </div>
         <div class="form-group">
           <label>Preferred Position</label>
-          <select id="prospect-position">
+          <select id="prospect-position" required>
             <option value="">Select a position</option>
             <option>Goalkeeper</option>
             <option>Defender</option>

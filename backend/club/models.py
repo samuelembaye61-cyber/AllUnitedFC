@@ -5,7 +5,7 @@ class Player(models.Model):
 	name = models.CharField(max_length=120)
 	number = models.PositiveSmallIntegerField()
 	position = models.CharField(max_length=80, blank=True)
-	photo = models.URLField(blank=True)
+	photo = models.ImageField(upload_to='players/', blank=True)
 
 	class Meta:
 		ordering = ['number', 'name']

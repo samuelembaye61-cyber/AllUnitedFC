@@ -1,7 +1,10 @@
 import json
 
 from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
+from django.middleware.csrf import get_token
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
+from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.http import require_http_methods
 
 from .models import Match, NewsArticle, Player, Prospect
@@ -14,6 +17,16 @@ def api_response(data, **kwargs):
     return response
 
 
+def csrf_token(request):
+    return api_response({'csrfToken': get_token(request)})
+
+
+def player_photo_url(request, player):
+    if not player.photo or not player.photo.name or not player.photo.storage.exists(player.photo.name):
+        return ''
+    return request.build_absolute_uri(player.photo.url)
+
+
 def players(request):
     data = [
         {
@@ -21,7 +34,7 @@ def players(request):
             'name': player.name,
             'number': player.number,
             'position': player.position,
-            'photo': player.photo,
+            'photo': player_photo_url(request, player),
         }
         for player in Player.objects.all()
     ]
@@ -60,7 +73,7 @@ def news(request):
     return api_response(data, safe=False)
 
 
-@csrf_exempt
+@csrf_protect
 @require_http_methods(['POST', 'OPTIONS'])
 def prospects(request):
     if request.method == 'OPTIONS':
@@ -68,18 +81,26 @@ def prospects(request):
 
     try:
         data = json.loads(request.body)
-        prospect = Prospect.objects.create(
-            name=data.get('name', '').strip(),
-            email=data.get('email', '').strip(),
-            phone=data.get('phone', '').strip(),
-            position=data.get('position', '').strip(),
-            message=data.get('message', '').strip(),
-        )
+        name = data.get('name', '').strip()
+        email = data.get('email', '').strip()
+        phone = data.get('phone', '').strip()
+        position = data.get('position', '').strip()
+        message = data.get('message', '').strip()
+        validate_email(email)
     except (json.JSONDecodeError, AttributeError):
         return api_response({'error': 'Send valid JSON.'}, status=400)
+    except ValidationError:
+        return api_response({'error': 'Enter a valid email address.'}, status=400)
 
-    if not prospect.name or not prospect.email or not prospect.position:
-        prospect.delete()
+    if not name or not email or not position:
         return api_response({'error': 'Name, email, and position are required.'}, status=400)
+
+    prospect = Prospect.objects.create(
+        name=name,
+        email=email,
+        phone=phone,
+        position=position,
+        message=message,
+    )
 
     return api_response({'id': prospect.id, 'status': prospect.status}, status=201)
