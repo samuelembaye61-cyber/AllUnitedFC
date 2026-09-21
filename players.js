@@ -1,9 +1,7 @@
 // ─── CONFIG ───────────────────────────────────────────────
 const API = window.location.protocol === "file:"
   ? "http://127.0.0.1:8001/api"
-  : window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost"
-    ? "/api"
-    : "https://api.allunitedfc.com/api";
+  : "/api";
 
 // ─── ON PAGE LOAD ─────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", () => {
