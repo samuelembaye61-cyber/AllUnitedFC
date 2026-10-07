@@ -7,7 +7,7 @@ from django.core.exceptions import ValidationError
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.http import require_http_methods
 
-from .models import Match, NewsArticle, Player, Prospect
+from .models import Match, NewsArticle, NewsGalleryImage, Player, Prospect
 
 
 def api_response(data, **kwargs):
@@ -58,8 +58,19 @@ def matches(request):
 
 
 def news(request):
-    data = [
-        {
+    data = []
+
+    for article in NewsArticle.objects.filter(published=True):
+        gallery = [
+            {
+                'id': image.id,
+                'image': image.image.url,
+                'caption': image.caption,
+            }
+            for image in article.gallery_images.all()
+        ]
+
+        data.append({
             'id': article.id,
             'slug': article.slug,
             'title': article.title,
@@ -67,9 +78,10 @@ def news(request):
             'date': article.date.isoformat(),
             'summary': article.summary,
             'content': article.content,
-        }
-        for article in NewsArticle.objects.filter(published=True)
-    ]
+            'image': article.image.url if article.image else '',
+            'gallery': gallery,
+        })
+
     return api_response(data, safe=False)
 
 

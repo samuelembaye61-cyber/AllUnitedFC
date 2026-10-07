@@ -36,6 +36,7 @@ class NewsArticle(models.Model):
 	date = models.DateField()
 	summary = models.TextField()
 	content = models.TextField()
+	image = models.ImageField(upload_to='news/', blank=True)
 	published = models.BooleanField(default=True)
 
 	class Meta:
@@ -43,6 +44,18 @@ class NewsArticle(models.Model):
 
 	def __str__(self):
 		return self.title
+
+
+class NewsGalleryImage(models.Model):
+	article = models.ForeignKey(NewsArticle, related_name='gallery_images', on_delete=models.CASCADE)
+	image = models.ImageField(upload_to='news/gallery/')
+	caption = models.CharField(max_length=200, blank=True)
+
+	class Meta:
+		ordering = ['id']
+
+	def __str__(self):
+		return f'{self.article.title} gallery image'
 
 
 class Prospect(models.Model):

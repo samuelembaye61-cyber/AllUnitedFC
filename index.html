@@ -16,7 +16,7 @@
       <span>All United FC</span>
     </div>
     <div class="nav-links">
-      <a href="#news">News</a>
+      <a href="news.html">News</a>
       <a href="#matches">Matches</a>
       <a href="#roster">Roster</a>
       <a href="#join">Join Us</a>
@@ -41,11 +41,22 @@
   <section class="news" id="news">
     <div class="container">
       <div class="section-label">Latest</div>
-      <div class="section-title">News & Announcements</div>
+      <div class="section-title">news & Media</div>
       <div class="divider"></div>
-      <div class="news-grid" id="home-news-grid">
-        <!-- News cards are loaded from the Django API. -->
-        <p class="loading">Loading news...</p>
+
+      <div class="highlights-layout">
+        <article class="highlight-featured" id="featured-highlight">
+          <p class="loading">Loading highlight...</p>
+        </article>
+
+        <div class="highlight-grid" id="highlight-grid">
+          <p class="loading">Loading highlights...</p>
+        </div>
+      </div>
+
+      <div class="highlight-dots" id="highlight-dots" aria-label="Featured story navigation"></div>
+      <div class="highlight-actions">
+        <a href="news.html" class="view-all-media">View all media</a>
       </div>
     </div>
   </section>
@@ -133,8 +144,11 @@
     <div class="crest footer-crest"><img src="images/PHOTO.jpg" alt="All United FC crest" /></div>
     <h3>All United FC</h3>
     <p>Adult Recreational League · Durham, NC</p>
-    <div class="footer-links">
-      <a href="#news">News</a>
+    <div class="social-links">
+      <a href="#">Facebook</a>
+      <a href="#">Twitter</a>
+      <a href="https://www.instagram.com/allunitedcf?stkn=aGx4cnZqMmhqeG1r">Instagram</a>
+      <a href="news.html">News</a>
       <a href="#matches">Matches</a>
       <a href="#roster">Roster</a>
       <a href="#join">Join Us</a>
