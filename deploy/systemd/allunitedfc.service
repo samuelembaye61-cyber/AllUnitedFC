@@ -1,0 +1,16 @@
+[Unit]
+Description=All United FC Django application
+After=network.target
+
+[Service]
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu/AllUnitedFC/backend
+EnvironmentFile=/home/ubuntu/AllUnitedFC/.env
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/home/ubuntu/AllUnitedFC/.venv/bin/gunicorn --workers 3 --bind 127.0.0.1:8000 config.wsgi:application
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

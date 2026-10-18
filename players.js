@@ -10,22 +10,192 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // ─── PLAYERS ──────────────────────────────────────────────
+const POSITION_GROUPS = [
+  { value: "goalkeeper", label: "Goalkeeper" },
+  { value: "defender", label: "Defender" },
+  { value: "midfielder", label: "Midfielder" },
+  { value: "forward", label: "Forward / Striker" }
+];
+
+function createCountryFlag(player) {
+  if (!/^[a-z]{2}$/i.test(player.country_code || "")) return null;
+
+  const flag = document.createElement("img");
+  flag.className = "player-flag";
+  flag.src = `https://flagcdn.com/${player.country_code.toLowerCase()}.svg`;
+  flag.alt = `${player.nationality || player.country_code} flag`;
+  flag.loading = "lazy";
+  flag.decoding = "async";
+  flag.referrerPolicy = "no-referrer";
+  flag.addEventListener("error", () => {
+    const fallback = document.createElement("span");
+    fallback.className = "player-flag-code";
+    fallback.textContent = player.country_code.toUpperCase();
+    fallback.setAttribute("aria-label", `${player.nationality || "Country"} flag unavailable`);
+    flag.replaceWith(fallback);
+  }, { once: true });
+  return flag;
+}
+
+function createPlayerCard(player) {
+  const card = document.createElement("article");
+  card.className = "player-card";
+  card.dataset.positionGroup = player.position_group || "unassigned";
+
+  const number = document.createElement("span");
+  number.className = "player-num";
+  number.textContent = `#${player.number}`;
+
+  const photoLine = document.createElement("div");
+  photoLine.className = "player-photo-line";
+  const avatar = document.createElement("div");
+  avatar.className = "player-avatar";
+  const photo = document.createElement("img");
+  photo.src = player.photo || "images/PHOTO.jpg";
+  photo.alt = `${player.name} portrait`;
+  photo.loading = "lazy";
+  avatar.append(photo);
+  photoLine.append(avatar);
+
+  const flag = createCountryFlag(player);
+  if (flag) photoLine.append(flag);
+
+  const heading = document.createElement("h3");
+  const nameButton = document.createElement("button");
+  nameButton.className = "player-name-link";
+  nameButton.type = "button";
+  nameButton.textContent = player.name;
+  nameButton.setAttribute("aria-label", `Read ${player.name}'s profile`);
+  nameButton.addEventListener("click", () => openPlayerProfile(player, nameButton));
+  heading.append(nameButton);
+
+  const position = document.createElement("span");
+  position.className = "player-pos";
+  position.textContent = player.position || "Position to confirm";
+
+  card.append(number, photoLine, heading, position);
+  return card;
+}
+
+function openPlayerProfile(player, trigger) {
+  const dialog = document.getElementById("player-profile-dialog");
+  const content = document.getElementById("player-profile-content");
+  if (!dialog || !content) return;
+
+  content.replaceChildren();
+  const profile = document.createElement("article");
+  profile.className = "player-profile-card";
+
+  const photo = document.createElement("img");
+  photo.className = "player-profile-photo";
+  photo.src = player.photo || "images/PHOTO.jpg";
+  photo.alt = `${player.name} portrait`;
+
+  const flagRow = document.createElement("div");
+  flagRow.className = "player-profile-flag-row";
+  const flag = createCountryFlag(player);
+  if (flag) flagRow.append(flag);
+
+  const nameLine = document.createElement("div");
+  nameLine.className = "player-profile-name-line";
+  const heading = document.createElement("h2");
+  heading.id = "player-profile-title";
+  heading.textContent = player.name;
+  nameLine.append(heading);
+
+  const number = document.createElement("div");
+  number.className = "player-profile-number";
+  number.textContent = `#${player.number}`;
+
+  const position = document.createElement("p");
+  position.className = "player-profile-position";
+  position.textContent = player.position || "Position to confirm";
+
+  const nationality = document.createElement("p");
+  nationality.className = "player-profile-nationality";
+  nationality.textContent = player.nationality || "Nationality not added yet.";
+
+  const bio = document.createElement("p");
+  bio.className = "player-profile-bio";
+  bio.textContent = player.bio || "Player bio or quote will appear here once confirmed.";
+
+  profile.append(photo, flagRow, number, nameLine, position, nationality, bio);
+  content.append(profile);
+
+  if (typeof dialog.showModal === "function") dialog.showModal();
+  else dialog.setAttribute("open", "");
+  document.getElementById("player-profile-close")?.focus();
+  dialog.returnFocusTarget = trigger;
+}
+
+function setupPlayerProfiles() {
+  const dialog = document.getElementById("player-profile-dialog");
+  const closeButton = document.getElementById("player-profile-close");
+  if (!dialog || !closeButton) return;
+
+  closeButton.addEventListener("click", () => dialog.close());
+  dialog.addEventListener("click", event => {
+    if (event.target === dialog) dialog.close();
+  });
+  dialog.addEventListener("close", () => dialog.returnFocusTarget?.focus());
+}
+
+function setupPlayerFilters(players) {
+  const grid = document.getElementById("roster-grid");
+  const filterBar = document.getElementById("roster-filters");
+  const count = document.getElementById("roster-filter-count");
+  if (!grid || !filterBar) return;
+
+  const filters = [
+    { value: "all", label: "All players" },
+    ...POSITION_GROUPS.map(group => ({ value: group.value, label: `${group.label}s` }))
+  ];
+  const buttons = filters.map((filter, index) => {
+    const button = document.createElement("button");
+    button.className = "news-filter-pill";
+    button.type = "button";
+    button.dataset.positionFilter = filter.value;
+    button.setAttribute("aria-pressed", String(index === 0));
+    button.textContent = filter.label;
+    filterBar.insertBefore(button, count || null);
+    return button;
+  });
+
+  const cards = [...grid.querySelectorAll(".player-card")];
+  const applyFilter = value => {
+    let visible = 0;
+    cards.forEach(card => {
+      const show = value === "all" || card.dataset.positionGroup === value;
+      card.hidden = !show;
+      if (show) visible += 1;
+    });
+    if (count) count.textContent = `${visible} ${visible === 1 ? "player" : "players"}`;
+  };
+
+  buttons.forEach(button => button.addEventListener("click", () => {
+    buttons.forEach(item => item.setAttribute("aria-pressed", String(item === button)));
+    applyFilter(button.dataset.positionFilter);
+  }));
+
+  applyFilter("all");
+}
+
 async function loadPlayers() {
   const grid = document.getElementById("roster-grid");
+  if (!grid) return;
+
+  setupPlayerProfiles();
   try {
     const response = await fetch(`${API}/players/`);
     if (!response.ok) throw new Error("Players request failed");
     const data = await response.json();
-    grid.innerHTML = data.length ? data.map(player => `
-      <div class="player-card">
-        <span class="player-num">#${player.number}</span>
-        <div class="player-avatar">
-          <img src="${player.photo || 'images/PHOTO.jpg'}" alt="${player.name}" />
-        </div>
-        <h3>${player.name}</h3>
-        <div class="player-pos">${player.position || "Player"}</div>
-      </div>
-    `).join("") : "<p class=\"loading\">No players added yet.</p>";
+    grid.replaceChildren();
+    if (data.length) {
+      data.forEach(player => grid.append(createPlayerCard(player)));
+      setupPlayerFilters(data);
+    } else {
+      grid.innerHTML = "<p class=\"loading\">No players added yet.</p>";
+    }
   } catch (error) {
     grid.innerHTML = "<p class=\"loading\">Could not connect to the player service.</p>";
     console.error(error);
@@ -54,6 +224,7 @@ async function loadMatches() {
     upcoming.innerHTML = future.length ? future.map(match => matchCard(match, true)).join("") : "<p class=\"loading\">No upcoming matches.</p>";
     all.innerHTML = data.length ? data.map(match => matchCard(match, !completed.includes(match))).join("") : "<p class=\"loading\">No matches yet.</p>";
     points.innerHTML = renderPointsTable(getPointsTable(completed));
+    if (typeof loadLeagueBadge === "function") loadLeagueBadge();
   } catch (error) {
     results.innerHTML = "<p class=\"loading\">Could not connect to the match service.</p>";
     upcoming.innerHTML = "";
@@ -121,32 +292,43 @@ function getPointsTable(matches) {
   return Object.values(table).sort((a, b) => {
     const goalDifference = (team) => team.goalsFor - team.goalsAgainst;
     return b.points - a.points || goalDifference(b) - goalDifference(a) || b.goalsFor - a.goalsFor;
-  });
+  }).filter(team => team.team.trim().toLowerCase() === "all united fc");
 }
 
 function renderPointsTable(table) {
-  if (!table.length) return "<p class=\"loading\">No completed matches yet.</p>";
   return `
-    <div class="points-table-wrap">
-      <table class="points-table">
-        <thead>
-          <tr><th>#</th><th>Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GD</th><th>Pts</th></tr>
-        </thead>
-        <tbody>
-          ${table.map((team, index) => `
-            <tr>
-              <td>${index + 1}</td>
-              <th scope="row">${team.team}</th>
-              <td>${team.played}</td>
-              <td>${team.won}</td>
-              <td>${team.drawn}</td>
-              <td>${team.lost}</td>
-              <td>${team.goalsFor - team.goalsAgainst}</td>
-              <td><strong>${team.points}</strong></td>
-            </tr>
-          `).join("")}
-        </tbody>
-      </table>
+    <div class="club-standings-widget">
+      <div class="club-standings-heading">
+        <div>
+          <div class="section-label">Club record</div>
+          <h3>All United FC</h3>
+        </div>
+        <a class="official-standings-link" href="https://register.allnations.soccer/schedules/47151?view=standings" target="_blank" rel="noopener noreferrer">
+          Official league standings <span aria-hidden="true">↗</span>
+        </a>
+      </div>
+      ${table.length ? `
+        <div class="points-table-wrap">
+          <table class="points-table club-record-table">
+            <thead>
+              <tr><th>Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GD</th><th>Pts</th></tr>
+            </thead>
+            <tbody>
+              ${table.map(team => `
+                <tr>
+                  <th scope="row">${team.team}</th>
+                  <td>${team.played}</td>
+                  <td>${team.won}</td>
+                  <td>${team.drawn}</td>
+                  <td>${team.lost}</td>
+                  <td>${team.goalsFor - team.goalsAgainst}</td>
+                  <td><strong>${team.points}</strong></td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        </div>
+      ` : '<p class="loading">No completed All United FC matches are recorded yet.</p>'}
     </div>
   `;
 }

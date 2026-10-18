@@ -29,9 +29,8 @@ urlpatterns = [
 ]
 
 if settings.DEBUG:
-	urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-
-urlpatterns += [
-    path('', serve, {'document_root': FRONTEND_DIR, 'path': 'index.html'}),
-    re_path(r'^(?P<path>.*)$', serve, {'document_root': FRONTEND_DIR}),
-]
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += [
+        path('', serve, {'document_root': FRONTEND_DIR, 'path': 'index.html'}),
+        re_path(r'^(?P<path>.*)$', serve, {'document_root': FRONTEND_DIR}),
+    ]

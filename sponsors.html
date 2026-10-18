@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Partners | All United FC</title>
+    <script>
+        try { const saved = localStorage.getItem('allunited_theme'); document.documentElement.dataset.theme = saved || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); }
+        catch { document.documentElement.dataset.theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; }
+    </script>
+        <link rel="stylesheet" href="styles.css?v=20" />
+    
+</head>
+<body>
+    <div id="urgent-alert" class="urgent-alert" role="status" aria-live="polite" hidden></div>
+    <nav>
+        <div class="nav-brand-group">
+            <a class="news-page-brand" href="index.html">
+                <span class="crest"><img src="images/PHOTO.jpg" alt="All United FC crest" /></span>
+                <strong>All United FC</strong>
+            </a>
+            <span class="league-badge-placeholder nav-league-badge" data-league-badge-slot>League badge pending</span>
+        </div>
+        <button class="nav-toggle" type="button" aria-label="Open navigation menu" aria-expanded="false" aria-controls="site-navigation">
+            <span></span><span></span><span></span>
+        </button>
+        <div class="nav-links" id="site-navigation">
+            <a href="index.html#matches">Matches</a>
+            <a href="index.html#roster">Roster</a>
+            <a href="news.html">News</a>
+            <a href="sponsors.html" aria-current="page">Partners</a>
+            <a href="index.html#join">Join Us</a>
+            <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false" aria-label="Switch to dark theme">
+                <span class="theme-toggle-icon" aria-hidden="true">☾</span>
+                <span class="theme-toggle-label">Dark mode</span>
+            </button>
+        </div>
+    </nav>
+
+    <main class="sponsors-page">
+        <header class="sponsors-hero">
+            <div class="container sponsors-hero-inner">
+                <div class="section-label">All United FC · Durham, NC</div>
+                <h1>Back the club.<br><span>Build the community.</span></h1>
+                <p>Partner with a local football club and support players on and off the pitch.</p>
+                <a class="btn" href="#sponsor-inquiry">Become a sponsor</a>
+            </div>
+        </header>
+
+        <div class="container sponsors-content">
+            <div id="sponsor-preview-notice" class="sponsor-preview-notice" hidden>
+                Preview draft · Example partner content only. Replace all placeholders and confirm offers and pricing before publishing.
+            </div>
+
+            <section class="sponsor-tier-section sponsor-diamond-section" aria-labelledby="diamond-heading">
+                <div class="sponsor-tier-heading">
+                    <div>
+                        <div class="section-label">Principal / kit partner</div>
+                        <h2 id="diamond-heading">Diamond partners</h2>
+                    </div>
+                    <p>Top placement, a full company profile, and an approved member offer.</p>
+                </div>
+                <div id="diamond-sponsors" class="sponsor-diamond-list"></div>
+            </section>
+
+            <section class="sponsor-tier-section" aria-labelledby="platinum-heading">
+                <div class="sponsor-tier-heading">
+                    <div>
+                        <div class="section-label">Official partners</div>
+                        <h2 id="platinum-heading">Platinum partners</h2>
+                    </div>
+                    <p>Local businesses supporting matchdays, player wellbeing, and equipment.</p>
+                </div>
+                <div id="platinum-sponsors" class="sponsor-platinum-grid"></div>
+            </section>
+
+            <section class="sponsor-tier-section sponsor-gold-section" aria-labelledby="gold-heading">
+                <div class="sponsor-tier-heading">
+                    <div>
+                        <div class="section-label">Community supporters</div>
+                        <h2 id="gold-heading">Gold partners</h2>
+                    </div>
+                </div>
+                <div id="gold-sponsors" class="sponsor-gold-row"></div>
+            </section>
+
+            <section class="sponsor-inquiry-section" id="sponsor-inquiry" aria-labelledby="inquiry-heading">
+                <div class="sponsor-inquiry-copy">
+                    <div class="section-label">Start a conversation</div>
+                    <h2 id="inquiry-heading">Partner with All United FC</h2>
+                    <p>Tell us a little about your business and the partnership you have in mind. Club leadership will follow up.</p>
+                    <p class="sponsor-form-privacy">Your details are sent to club leadership for sponsorship follow-up.</p>
+                </div>
+                <form id="sponsor-inquiry-form" class="sponsor-inquiry-form">
+                    <div class="form-group">
+                        <label for="sponsor-business">Business name</label>
+                        <input id="sponsor-business" name="business_name" autocomplete="organization" required maxlength="160" />
+                    </div>
+                    <div class="form-group">
+                        <label for="sponsor-contact">Contact person</label>
+                        <input id="sponsor-contact" name="contact_name" autocomplete="name" required maxlength="120" />
+                    </div>
+                    <div class="sponsor-form-row">
+                        <div class="form-group">
+                            <label for="sponsor-email">Email</label>
+                            <input id="sponsor-email" name="email" type="email" autocomplete="email" required />
+                        </div>
+                        <div class="form-group">
+                            <label for="sponsor-phone">Phone</label>
+                            <input id="sponsor-phone" name="phone" type="tel" autocomplete="tel" required maxlength="40" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="sponsor-tier">Interested package</label>
+                        <select id="sponsor-tier" name="intended_tier" required>
+                            <option value="">Choose a package</option>
+                            <option value="diamond">Diamond</option>
+                            <option value="platinum">Platinum</option>
+                            <option value="gold">Gold</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="sponsor-message">Message <span>(optional)</span></label>
+                        <textarea id="sponsor-message" name="message" rows="4" maxlength="2000"></textarea>
+                    </div>
+                    <div class="sponsor-honeypot" aria-hidden="true">
+                        <label for="sponsor-website">Leave this field empty</label>
+                        <input id="sponsor-website" name="website_url" tabindex="-1" autocomplete="off" />
+                    </div>
+                    <button class="btn" type="submit">Send inquiry</button>
+                    <p id="sponsor-form-feedback" class="form-feedback" role="status" aria-live="polite"></p>
+                </form>
+            </section>
+
+            <section class="sponsor-flyer" aria-labelledby="flyer-heading">
+                <div class="sponsor-flyer-header">
+                    <div>
+                        <div class="section-label">Printable draft</div>
+                        <h2 id="flyer-heading">Sponsorship overview</h2>
+                    </div>
+                    <button class="btn btn-outline flyer-print-button" type="button" id="print-sponsor-flyer">Print overview</button>
+                </div>
+                <p>Support local players and become part of the All United FC community.</p>
+                <div class="sponsor-flyer-facts">
+                    <div><strong>Matchday attendance</strong><span>Confirm Sunday attendance figure</span></div>
+                    <div><strong>Website reach</strong><span>Add verified monthly visits</span></div>
+                    <div><strong>Member offers</strong><span>Publish only approved partner perks</span></div>
+                </div>
+                <div class="sponsor-package-summary">
+                    <span><strong>Diamond</strong> · Principal / kit partner · Pricing to confirm</span>
+                    <span><strong>Platinum</strong> · Official partner · Pricing to confirm</span>
+                    <span><strong>Gold</strong> · Community supporter · Pricing to confirm</span>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-brand-marks">
+            <div class="crest footer-crest"><img src="images/PHOTO.jpg" alt="All United FC crest" /></div>
+            <span class="league-badge-placeholder footer-league-badge" data-league-badge-slot>League badge pending</span>
+        </div>
+        <h3>All United FC</h3>
+        <p>Adult Recreational Club · Durham, NC</p>
+        <div class="sponsor-footer-ribbon" id="footer-sponsors" hidden></div>
+        <div class="social-links">
+            <a href="index.html">Home</a>
+            <a href="news.html">News</a>
+            <a href="index.html#matches">Matches</a>
+            <a href="index.html#roster">Roster</a>
+            <a href="index.html#join">Join Us</a>
+            <a href="sponsors.html">Partners</a>
+        </div>
+        <div class="copy">&copy; 2026 All United FC. All rights reserved.</div>
+    </footer>
+
+    <script src="site.js?v=8"></script>
+    <script src="news.js?v=9"></script>
+    <script src="sponsors.js?v=1"></script>
+</body>
+</html>

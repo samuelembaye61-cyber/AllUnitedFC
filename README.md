@@ -98,6 +98,8 @@ python backend/manage.py loaddata players
 python backend/manage.py loaddata matches
 ```
 
+Sponsor profiles and sponsor inquiries are managed separately in Django admin. Set `SPONSOR_INQUIRY_NOTIFICATION_EMAIL` and the `DJANGO_EMAIL_*` environment variables to deliver new-lead notifications. Without an email backend configured, local development uses Django's console email backend.
+
 The frontend currently points to the production API URL in `players.js` and `news.js`:
 
 ```javascript
@@ -110,27 +112,8 @@ For local-only frontend testing, temporarily use:
 const API = "http://127.0.0.1:8001/api";
 ```
 
-## Deployment Plan
+## Deploy to EC2
 
-The project uses separate frontend and backend hosting:
+The deployment target is one Ubuntu EC2 instance. Nginx serves the frontend, static files, and uploaded media; Gunicorn runs Django behind it. Follow [`DEPLOY_TO_EC2.md`](DEPLOY_TO_EC2.md) first to verify HTTP directly on the EC2 public IP. Once that works, continue with [`DEPLOYMENT_BEFORE_CLOUDFLARE.md`](DEPLOYMENT_BEFORE_CLOUDFLARE.md) for the original Cloudflare checklist.
 
-1. Deploy the plain HTML, CSS, JavaScript, and `images/` files to GitHub Pages, Netlify, or Vercel.
-2. Deploy the Django `backend/` application to a Python host such as Render or Railway.
-3. Set the production `DJANGO_SECRET_KEY` and `DJANGO_ALLOWED_HOSTS` as host environment variables.
-4. Point the frontend `API` constant at the deployed backend URL.
-5. Configure CORS to allow only the frontend domain.
-6. Use PostgreSQL instead of SQLite for production data.
-
-## Pre-Deployment Checklist
-
-- Replace the hardcoded API URL with the real deployed API URL.
-- Remove the development catch-all route that serves the whole repository.
-- Replace `Access-Control-Allow-Origin: *` with the real frontend origin.
-- Remove `csrf_exempt` and configure CSRF protection for the signup request.
-- Keep `DEBUG = False` and use a private production secret key.
-- Configure HTTPS, secure cookies, backups, and a production database.
-- Escape or safely render admin-entered text before inserting it into HTML.
-
-## Current Status
-
-The local Django backend passes `manage.py check`, and the local API has been verified with roster and fixture data. The production API domain is not deployed yet, so public frontend data loading will work only after the backend is hosted and its URL is configured.
+The Dockerfile and GitHub Actions workflow are unfinished ECS scaffolds and are not used by this EC2 deployment path. The local SQLite database and uploaded media are Git-ignored, so copy and back them up separately if you need existing site content on the server.

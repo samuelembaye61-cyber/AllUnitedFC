@@ -4,19 +4,36 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>News | All United FC</title>
-    <link rel="stylesheet" href="styles.css" />
+    <script>
+        try { const saved = localStorage.getItem('allunited_theme'); document.documentElement.dataset.theme = saved || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); }
+        catch { document.documentElement.dataset.theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; }
+    </script>
+        <link rel="stylesheet" href="styles.css?v=20" />
+    
 </head>
 <body>
+    <div id="urgent-alert" class="urgent-alert" role="status" aria-live="polite" hidden></div>
     <nav>
-        <a class="news-page-brand" href="index.html">
-            <span class="crest"><img src="images/PHOTO.jpg" alt="All United FC crest" /></span>
-            <strong>All United FC</strong>
-        </a>
-        <div class="nav-links">
+        <div class="nav-brand-group">
+            <a class="news-page-brand" href="index.html">
+                <span class="crest"><img src="images/PHOTO.jpg" alt="All United FC crest" /></span>
+                <strong>All United FC</strong>
+            </a>
+            <span class="league-badge-placeholder nav-league-badge" data-league-badge-slot>League badge pending</span>
+        </div>
+        <button class="nav-toggle" type="button" aria-label="Open navigation menu" aria-expanded="false" aria-controls="site-navigation">
+            <span></span><span></span><span></span>
+        </button>
+        <div class="nav-links" id="site-navigation">
             <a href="news.html">News</a>
             <a href="index.html#matches">Matches</a>
             <a href="index.html#roster">Roster</a>
             <a href="index.html#join">Join Us</a>
+            <a href="sponsors.html">Partners</a>
+            <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false" aria-label="Switch to dark theme">
+                <span class="theme-toggle-icon" aria-hidden="true">☾</span>
+                <span class="theme-toggle-label">Dark mode</span>
+            </button>
         </div>
     </nav>
 
@@ -32,21 +49,28 @@
    <!-- FOOTER -->
 
     <footer>
-        <div class="crest footer-crest"><img src="images/PHOTO.jpg" alt="All United FC crest" /></div>
+        <div class="footer-brand-marks">
+            <div class="crest footer-crest"><img src="images/PHOTO.jpg" alt="All United FC crest" /></div>
+            <span class="league-badge-placeholder footer-league-badge" data-league-badge-slot>League badge pending</span>
+        </div>
         <h3>All United FC</h3>
-        <p>Adult Recreational League · Durham, NC</p>
+        <p>Adult Recreational Club · Durham, NC</p>
+        <div class="sponsor-footer-ribbon" id="footer-sponsors" hidden></div>
         <div class="social-links">
             <a href="#">Facebook</a>
             <a href="#">Twitter</a>
-            <a href="https://www.instagram.com/allunitedcf?stkn=aGx4cnZqMmhqeG1r">Instagram</a>
+            <a href="https://www.instagram.com/allunitedcf?stkn=aGx4cnZqMmhqeGx4cnZqMmhqeG1r">Instagram</a>
             <a href="news.html">News</a>
             <a href="index.html#matches">Matches</a>
             <a href="index.html#roster">Roster</a>
             <a href="index.html#join">Join Us</a>
+            <a href="sponsors.html">Partners</a>
         </div>
         <div class="copy">&copy; 2026 All United FC. All rights reserved.</div>
     </footer>
 
-    <script src="news.js"></script>
+    <script src="site.js?v=8"></script>
+    <script src="news.js?v=9"></script>
+    <script src="sponsors.js?v=1"></script>
 </body>
 </html>
