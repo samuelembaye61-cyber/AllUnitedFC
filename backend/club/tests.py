@@ -5,8 +5,10 @@ from tempfile import TemporaryDirectory
 from django.core import mail
 from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import TestCase, override_settings
+from django.contrib.admin.sites import AdminSite
+from django.test import RequestFactory, TestCase, override_settings
 
+from .admin import PlayerAdmin
 from .models import Match, NewsArticle, Player, SiteBranding, Sponsor, SponsorInquiry
 
 
@@ -88,6 +90,7 @@ class PlayerApiTests(TestCase):
 			nationality='Exampleland',
 			country_code='EX',
 			bio='A short player quote.',
+			is_spotlight=True,
 		)
 
 		response = self.client.get('/api/players/')
@@ -99,6 +102,19 @@ class PlayerApiTests(TestCase):
 		self.assertEqual(player['nationality'], 'Exampleland')
 		self.assertEqual(player['country_code'], 'ex')
 		self.assertEqual(player['bio'], 'A short player quote.')
+		self.assertTrue(player['is_spotlight'])
+
+	def test_saving_spotlight_player_clears_other_players(self):
+		previous = Player.objects.create(name='Previous Spotlight', number=7, is_spotlight=True)
+		selected = Player.objects.create(name='New Spotlight', number=8)
+		selected.is_spotlight = True
+
+		PlayerAdmin(Player, AdminSite()).save_model(RequestFactory().post('/admin/'), selected, None, True)
+
+		previous.refresh_from_db()
+		selected.refresh_from_db()
+		self.assertFalse(previous.is_spotlight)
+		self.assertTrue(selected.is_spotlight)
 
 
 class SponsorApiTests(TestCase):

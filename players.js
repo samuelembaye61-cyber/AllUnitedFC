@@ -16,7 +16,6 @@ const POSITION_GROUPS = [
   { value: "midfielder", label: "Midfielder" },
   { value: "forward", label: "Forward / Striker" }
 ];
-
 function createCountryFlag(player) {
   if (!/^[a-z]{2}$/i.test(player.country_code || "")) return null;
 
@@ -41,6 +40,7 @@ function createPlayerCard(player) {
   const card = document.createElement("article");
   card.className = "player-card";
   card.dataset.positionGroup = player.position_group || "unassigned";
+  card.dataset.playerId = player.id;
 
   const number = document.createElement("span");
   number.className = "player-num";
@@ -73,18 +73,22 @@ function createPlayerCard(player) {
   position.className = "player-pos";
   position.textContent = player.position || "Position to confirm";
 
-  card.append(number, photoLine, heading, position);
+  const bio = document.createElement("p");
+  bio.className = "player-card-bio";
+  bio.textContent = player.bio || "Bio not added yet.";
+
+  card.append(number, photoLine, heading, position, bio);
   return card;
 }
 
-function openPlayerProfile(player, trigger) {
-  const dialog = document.getElementById("player-profile-dialog");
-  const content = document.getElementById("player-profile-content");
-  if (!dialog || !content) return;
-
-  content.replaceChildren();
+function buildPlayerProfile(player) {
   const profile = document.createElement("article");
   profile.className = "player-profile-card";
+
+  const header = document.createElement("div");
+  header.className = "player-profile-header";
+  const media = document.createElement("div");
+  media.className = "player-profile-media";
 
   const photo = document.createElement("img");
   photo.className = "player-profile-photo";
@@ -96,16 +100,17 @@ function openPlayerProfile(player, trigger) {
   const flag = createCountryFlag(player);
   if (flag) flagRow.append(flag);
 
-  const nameLine = document.createElement("div");
-  nameLine.className = "player-profile-name-line";
-  const heading = document.createElement("h2");
-  heading.id = "player-profile-title";
-  heading.textContent = player.name;
-  nameLine.append(heading);
-
   const number = document.createElement("div");
   number.className = "player-profile-number";
   number.textContent = `#${player.number}`;
+  media.append(photo, number, flagRow);
+
+  const details = document.createElement("div");
+  details.className = "player-profile-details";
+  const heading = document.createElement("h2");
+  heading.textContent = player.name;
+  heading.id = "player-profile-title";
+  heading.className = "player-profile-name";
 
   const position = document.createElement("p");
   position.className = "player-profile-position";
@@ -119,8 +124,90 @@ function openPlayerProfile(player, trigger) {
   bio.className = "player-profile-bio";
   bio.textContent = player.bio || "Player bio or quote will appear here once confirmed.";
 
-  profile.append(photo, flagRow, number, nameLine, position, nationality, bio);
-  content.append(profile);
+  details.append(heading, position, nationality);
+  header.append(media, details);
+  profile.append(header, bio);
+
+  if (player.bio) {
+    const expandButton = document.createElement("button");
+    expandButton.className = "player-profile-expand";
+    expandButton.type = "button";
+    expandButton.textContent = "View full bio";
+    expandButton.setAttribute("aria-expanded", "false");
+    expandButton.addEventListener("click", () => {
+      const expanded = bio.classList.toggle("is-expanded");
+      expandButton.textContent = expanded ? "Show less" : "View full bio";
+      expandButton.setAttribute("aria-expanded", String(expanded));
+    });
+    profile.append(expandButton);
+  }
+
+  return profile;
+}
+
+function renderPlayerSpotlight(players) {
+  const spotlight = document.getElementById("player-spotlight");
+  const content = document.getElementById("player-spotlight-content");
+  if (!spotlight || !content) return;
+
+  const player = players.find(item => item.is_spotlight)
+    || players.find(item => item.bio && item.photo)
+    || players.find(item => item.bio)
+    || players[0];
+  if (!player) {
+    spotlight.hidden = true;
+    return;
+  }
+
+  const card = document.createElement("article");
+  card.className = "player-spotlight-card";
+
+  const photo = document.createElement("img");
+  photo.className = "player-spotlight-photo";
+  photo.src = player.photo || "images/PHOTO.jpg";
+  photo.alt = `${player.name} portrait`;
+  photo.loading = "lazy";
+
+  const flag = createCountryFlag(player);
+  const name = document.createElement("button");
+  name.className = "player-spotlight-name";
+  name.type = "button";
+  name.textContent = player.name;
+  name.addEventListener("click", () => openPlayerProfile(player, name));
+
+  const position = document.createElement("p");
+  position.className = "player-spotlight-position";
+  position.textContent = player.position || "Position to confirm";
+
+  const bio = document.createElement("p");
+  bio.className = "player-spotlight-bio";
+  bio.textContent = player.bio || "Bio not added yet.";
+
+  const profileButton = document.createElement("button");
+  profileButton.className = "player-spotlight-link";
+  profileButton.type = "button";
+  profileButton.textContent = "Read full profile";
+  profileButton.addEventListener("click", () => openPlayerProfile(player, profileButton));
+
+  const details = document.createElement("div");
+  details.className = "player-spotlight-details";
+  const identity = document.createElement("div");
+  identity.className = "player-spotlight-identity";
+  identity.append(name);
+  if (flag) identity.prepend(flag);
+  details.append(identity, position, bio, profileButton);
+  card.append(photo, details);
+  content.replaceChildren(card);
+  spotlight.hidden = false;
+}
+
+function openPlayerProfile(player, trigger) {
+  const dialog = document.getElementById("player-profile-dialog");
+  const content = document.getElementById("player-profile-content");
+  if (!dialog || !content) return;
+
+  content.replaceChildren();
+  content.append(buildPlayerProfile(player));
 
   if (typeof dialog.showModal === "function") dialog.showModal();
   else dialog.setAttribute("open", "");
@@ -193,6 +280,7 @@ async function loadPlayers() {
     if (data.length) {
       data.forEach(player => grid.append(createPlayerCard(player)));
       setupPlayerFilters(data);
+      renderPlayerSpotlight(data);
     } else {
       grid.innerHTML = "<p class=\"loading\">No players added yet.</p>";
     }

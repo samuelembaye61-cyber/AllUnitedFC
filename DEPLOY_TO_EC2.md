@@ -8,11 +8,18 @@ The Dockerfile and GitHub Actions workflow are unfinished ECS scaffolds and are 
 
 ## 1. Check the EC2 instance
 
-Use an Ubuntu instance with a public IPv4 address or Elastic IP. Its security group should allow:
+Use an Ubuntu instance with a public IPv4 address or Elastic IP. In the attached security group, check **inbound** and **outbound** rules separately:
 
-- SSH port 22 from your own IP
-- HTTP port 80 from the internet
-- HTTPS port 443 from the internet for the later TLS step
+| Direction | Protocol / port | Source or destination | Purpose |
+|---|---|---|---|
+| Inbound | SSH / TCP 22 | Your current public IP (`My IP`) | Mac to EC2 shell access |
+| Inbound | HTTP / TCP 80 | `0.0.0.0/0` | Public website over HTTP |
+| Inbound | HTTPS / TCP 443 | `0.0.0.0/0` | Website TLS later |
+| Outbound | All traffic (default), or TCP 80 and 443 | `0.0.0.0/0` | EC2 package downloads and responses |
+
+`apt update` is an **outbound** connection from EC2 to Ubuntu repositories. An inbound port 80 rule does not enable it. Do not set outbound destination to `My IP`; package repositories have different IP addresses.
+
+The subnet must also have an internet route: a public subnet needs `0.0.0.0/0` routed to an Internet Gateway and the instance needs a public IP. A private subnet needs a NAT Gateway route instead. Network ACLs are stateless, so they must allow outbound web traffic and the return ephemeral ports. IPv6 is optional; it is normal for IPv6 attempts to fail if the instance has no IPv6 route.
 
 Connect from your computer:
 
@@ -22,7 +29,15 @@ ssh -i /path/to/key.pem ubuntu@YOUR_EC2_PUBLIC_IP
 
 ## 2. Install server packages
 
-Run on EC2:
+Before installing, if `curl` is already available, test outbound access from EC2:
+
+```bash
+curl -4I --connect-timeout 8 http://security.ubuntu.com/ubuntu/
+```
+
+An HTTP response means the route works. A timeout means to fix the EC2 outbound security-group rule or VPC route before continuing. If only IPv6 is unavailable, you can try `sudo apt-get -o Acquire::ForceIPv4=true update`; this does not fix blocked IPv4 egress.
+
+Then run on EC2:
 
 ```bash
 sudo apt update

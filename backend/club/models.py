@@ -15,6 +15,11 @@ class Player(models.Model):
 	number = models.PositiveSmallIntegerField()
 	position = models.CharField(max_length=80, blank=True)
 	position_group = models.CharField(max_length=20, choices=POSITION_GROUP_CHOICES, blank=True, default='', db_index=True)
+	is_spotlight = models.BooleanField(
+		'Player of the Match spotlight',
+		default=False,
+		help_text='Show this player in the homepage spotlight. Saving clears the selection from other players.',
+	)
 	nationality = models.CharField(max_length=80, blank=True)
 	country_code = models.CharField(max_length=2, blank=True, validators=[RegexValidator(r'^[A-Za-z]{2}$', 'Enter a two-letter ISO country code.')])
 	bio = models.TextField(blank=True, help_text='A short player bio or quote.')

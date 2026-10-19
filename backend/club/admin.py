@@ -4,13 +4,18 @@ from .models import Match, NewsArticle, NewsGalleryImage, Player, Prospect, Site
 
 @admin.register(Player)
 class PlayerAdmin(admin.ModelAdmin):
-	list_display = ('number', 'name', 'position', 'position_group', 'nationality')
-	list_filter = ('position_group',)
+	list_display = ('number', 'name', 'position', 'position_group', 'nationality', 'is_spotlight')
+	list_filter = ('position_group', 'is_spotlight')
 	search_fields = ('name', 'position', 'nationality', 'bio')
 	fieldsets = (
-		(None, {'fields': ('name', 'number', 'position', 'position_group', 'photo')}),
+		(None, {'fields': ('name', 'number', 'position', 'position_group', 'photo', 'is_spotlight')}),
 		('Player profile', {'fields': ('nationality', 'country_code', 'bio')}),
 	)
+
+	def save_model(self, request, obj, form, change):
+		if obj.is_spotlight:
+			Player.objects.exclude(pk=obj.pk).filter(is_spotlight=True).update(is_spotlight=False)
+		super().save_model(request, obj, form, change)
 
 
 @admin.register(Match)

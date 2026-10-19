@@ -38,6 +38,7 @@ def players(request):
             'position': player.position,
             'position_group': player.position_group,
             'position_group_label': player.get_position_group_display() if player.position_group else '',
+            'is_spotlight': player.is_spotlight,
             'nationality': player.nationality,
             'country_code': player.country_code.lower(),
             'bio': player.bio,
