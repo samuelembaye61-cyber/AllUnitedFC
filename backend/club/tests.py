@@ -289,6 +289,7 @@ class SponsorApiTests(TestCase):
 			SiteBranding.objects.create(
 				league_badge=SimpleUploadedFile('league-badge.png', b'badge-image', content_type='image/png'),
 				homepage_background=SimpleUploadedFile('homepage-background.jpg', b'hero-image', content_type='image/jpeg'),
+				league_background=SimpleUploadedFile('league-background.jpg', b'league-image', content_type='image/jpeg'),
 			)
 
 			response = self.client.get('/api/site-branding/')
@@ -296,6 +297,7 @@ class SponsorApiTests(TestCase):
 		self.assertEqual(response.status_code, 200)
 		self.assertTrue(response.json()['league_badge'].endswith('/media/branding/league-badge.png'))
 		self.assertTrue(response.json()['homepage_background'].endswith('/media/branding/homepage-background.jpg'))
+		self.assertTrue(response.json()['league_background'].endswith('/media/branding/league-background.jpg'))
 
 	def test_sponsor_list_returns_active_sponsors_in_tier_order(self):
 		gold = Sponsor.objects.create(name='Local Gold', tier='gold', display_order=0, is_active=True)

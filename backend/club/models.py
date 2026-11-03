@@ -224,10 +224,15 @@ class SiteBranding(models.Model):
 		blank=True,
 		help_text='Wide team photo for the homepage hero. The built-in club image is used when this is blank.',
 	)
+	league_background = models.ImageField(
+		upload_to='branding/',
+		blank=True,
+		help_text='Optional background image for the League & Season Hub.',
+	)
 
 	class Meta:
-		verbose_name = 'site branding'
-		verbose_name_plural = 'site branding'
+		verbose_name = 'club settings'
+		verbose_name_plural = 'club settings'
 
 	def save(self, *args, **kwargs):
 		self.pk = 1

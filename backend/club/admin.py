@@ -90,9 +90,9 @@ class SponsorInquiryAdmin(admin.ModelAdmin):
 
 @admin.register(SiteBranding)
 class SiteBrandingAdmin(admin.ModelAdmin):
-	list_display = ('league_badge', 'homepage_background')
+	list_display = ('league_badge', 'homepage_background', 'league_background')
 	fieldsets = (
-		('Club branding', {'fields': ('league_badge', 'homepage_background')}),
+		('Club settings', {'fields': ('league_badge', 'homepage_background', 'league_background')}),
 	)
 
 	def has_add_permission(self, request):

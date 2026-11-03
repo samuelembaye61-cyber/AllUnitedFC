@@ -228,13 +228,17 @@ def site_branding(request):
     branding = SiteBranding.objects.first()
     badge_url = ''
     homepage_background_url = ''
+    league_background_url = ''
     if branding and branding.league_badge and branding.league_badge.storage.exists(branding.league_badge.name):
         badge_url = request.build_absolute_uri(branding.league_badge.url)
     if branding and branding.homepage_background and branding.homepage_background.storage.exists(branding.homepage_background.name):
         homepage_background_url = request.build_absolute_uri(branding.homepage_background.url)
+    if branding and branding.league_background and branding.league_background.storage.exists(branding.league_background.name):
+        league_background_url = request.build_absolute_uri(branding.league_background.url)
     return api_response({
         'league_badge': badge_url,
         'homepage_background': homepage_background_url,
+        'league_background': league_background_url,
     })
 
 

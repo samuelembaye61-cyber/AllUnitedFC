@@ -11,6 +11,24 @@ function setTheme(theme) {
   });
 }
 
+function resolveSiteAssetUrl(assetUrl) {
+  if (!assetUrl) return "";
+
+  try {
+    const resolved = new URL(assetUrl, window.location.href);
+    const localHosts = ["localhost", "127.0.0.1"];
+    const isLocalAsset = localHosts.includes(resolved.hostname);
+    const isRemotePage = !localHosts.includes(window.location.hostname);
+
+    if (window.location.protocol !== "file:" && isLocalAsset && isRemotePage) {
+      return new URL(`${resolved.pathname}${resolved.search}${resolved.hash}`, window.location.origin).href;
+    }
+    return resolved.href;
+  } catch (error) {
+    return assetUrl;
+  }
+}
+
 let siteBrandingRequest;
 
 async function loadLeagueBadge() {
@@ -26,18 +44,25 @@ async function loadLeagueBadge() {
       })
       .catch(error => {
         console.error(error);
-        return { league_badge: '', homepage_background: '' };
+        return { league_badge: '', homepage_background: '', league_background: '' };
       });
   }
 
   const branding = await siteBrandingRequest;
   if (branding.homepage_background) {
+    const backgroundUrl = resolveSiteAssetUrl(branding.homepage_background);
     document.querySelectorAll('.home-masthead').forEach(hero => {
-      hero.style.setProperty('--home-background-image', `url(${JSON.stringify(branding.homepage_background)})`);
+      hero.style.setProperty('--home-background-image', `url(${JSON.stringify(backgroundUrl)})`);
+    });
+  }
+  if (branding.league_background) {
+    const backgroundUrl = resolveSiteAssetUrl(branding.league_background);
+    document.querySelectorAll('.league-page-hero').forEach(hero => {
+      hero.style.setProperty('--league-background-image', `url(${JSON.stringify(backgroundUrl)})`);
     });
   }
 
-  const badgeUrl = branding.league_badge || '';
+  const badgeUrl = resolveSiteAssetUrl(branding.league_badge || '');
   if (!badgeUrl) return;
 
   document.querySelectorAll('[data-league-badge-slot]').forEach(slot => {
