@@ -11,27 +11,33 @@ function setTheme(theme) {
   });
 }
 
-let leagueBadgeRequest;
+let siteBrandingRequest;
 
 async function loadLeagueBadge() {
-  if (!leagueBadgeRequest) {
+  if (!siteBrandingRequest) {
     const apiBase = window.location.protocol === 'file:'
       ? 'http://127.0.0.1:8001/api'
       : '/api';
 
-    leagueBadgeRequest = fetch(`${apiBase}/site-branding/`)
+    siteBrandingRequest = fetch(`${apiBase}/site-branding/`)
       .then(response => {
-        if (!response.ok) throw new Error('League badge request failed');
+        if (!response.ok) throw new Error('Site branding request failed');
         return response.json();
       })
-      .then(branding => branding.league_badge || '')
       .catch(error => {
         console.error(error);
-        return '';
+        return { league_badge: '', homepage_background: '' };
       });
   }
 
-  const badgeUrl = await leagueBadgeRequest;
+  const branding = await siteBrandingRequest;
+  if (branding.homepage_background) {
+    document.querySelectorAll('.home-masthead').forEach(hero => {
+      hero.style.setProperty('--home-background-image', `url(${JSON.stringify(branding.homepage_background)})`);
+    });
+  }
+
+  const badgeUrl = branding.league_badge || '';
   if (!badgeUrl) return;
 
   document.querySelectorAll('[data-league-badge-slot]').forEach(slot => {

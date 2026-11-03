@@ -8,7 +8,7 @@
         try { const saved = localStorage.getItem('allunited_theme'); document.documentElement.dataset.theme = saved || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); }
         catch { document.documentElement.dataset.theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; }
     </script>
-        <link rel="stylesheet" href="styles.css?v=20" />
+        <link rel="stylesheet" href="styles.css?v=34" />
     
 </head>
 <body>
@@ -19,14 +19,13 @@
                 <span class="crest"><img src="images/PHOTO.jpg" alt="All United FC crest" /></span>
                 <strong>All United FC</strong>
             </a>
-            <span class="league-badge-placeholder nav-league-badge" data-league-badge-slot>League badge pending</span>
         </div>
         <button class="nav-toggle" type="button" aria-label="Open navigation menu" aria-expanded="false" aria-controls="site-navigation">
             <span></span><span></span><span></span>
         </button>
         <div class="nav-links" id="site-navigation">
             <a href="news.html">News</a>
-            <a href="index.html#matches">Matches</a>
+            <a href="league.html">League</a>
             <a href="index.html#roster">Roster</a>
             <a href="index.html#join">Join Us</a>
             <a href="sponsors.html">Partners</a>
@@ -46,25 +45,38 @@
             <div id="news-list" class="news-page-list"></div>
         </div>
     </main>
-   <!-- FOOTER -->
-
-    <footer>
-        <div class="footer-brand-marks">
-            <div class="crest footer-crest"><img src="images/PHOTO.jpg" alt="All United FC crest" /></div>
-            <span class="league-badge-placeholder footer-league-badge" data-league-badge-slot>League badge pending</span>
-        </div>
-        <h3>All United FC</h3>
-        <p>Adult Recreational Club · Durham, NC</p>
-        <div class="sponsor-footer-ribbon" id="footer-sponsors" hidden></div>
-        <div class="social-links">
-            <a href="#">Facebook</a>
-            <a href="#">Twitter</a>
-            <a href="https://www.instagram.com/allunitedcf?stkn=aGx4cnZqMmhqeGx4cnZqMmhqeG1r">Instagram</a>
-            <a href="news.html">News</a>
-            <a href="index.html#matches">Matches</a>
-            <a href="index.html#roster">Roster</a>
-            <a href="index.html#join">Join Us</a>
-            <a href="sponsors.html">Partners</a>
+    <footer class="home-footer">
+        <div class="home-footer-layout">
+            <div class="home-footer-brand">
+                <div class="footer-brand-marks">
+                    <div class="crest footer-crest"><img src="images/PHOTO.jpg" alt="All United FC crest" /></div>
+                </div>
+                <h3>All United FC</h3>
+                <p>Durham, NC</p>
+                <p>One club. One mission.</p>
+                <div class="sponsor-footer-ribbon" id="footer-sponsors" hidden></div>
+            </div>
+            <nav class="home-footer-columns" aria-label="Footer">
+                <section class="home-footer-column" aria-labelledby="footer-get-involved">
+                    <h4 id="footer-get-involved">Get Involved</h4>
+                    <a href="index.html#join">Join the Team</a>
+                    <a href="sponsors.html#sponsor-inquiry">Become a sponsor</a>
+                    <a href="sponsors.html#sponsor-inquiry">Sponsor Inquiry</a>
+                </section>
+                <section class="home-footer-column" aria-labelledby="footer-about-club">
+                    <h4 id="footer-about-club">About the Club</h4>
+                    <a href="index.html#roster">Team Roster</a>
+                    <a href="news.html">News</a>
+                    <a href="league.html">League Matches</a>
+                    <a href="sponsors.html">Partners</a>
+                </section>
+                <section class="home-footer-column" aria-labelledby="footer-connect">
+                    <h4 id="footer-connect">Connect</h4>
+                    <a href="https://www.instagram.com/allunitedcf?stkn=aGx4cnZqMmhqeGx4cnZqMmhqeG1r" target="_blank" rel="noopener noreferrer">Instagram</a>
+                    <span>Email</span>
+                    <span>Facebook</span>
+                </section>
+            </nav>
         </div>
         <div class="copy">&copy; 2026 All United FC. All rights reserved.</div>
     </footer>

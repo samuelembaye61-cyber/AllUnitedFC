@@ -6,6 +6,7 @@ urlpatterns = [
     path('csrf/', views.csrf_token),
     path('players/', views.players),
     path('matches/', views.matches),
+    path('league-seasons/', views.league_seasons),
     path('news/', views.news),
     path('site-branding/', views.site_branding),
     path('sponsors/', views.sponsors),

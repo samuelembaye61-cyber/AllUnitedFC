@@ -6,7 +6,7 @@ const API = window.location.protocol === "file:"
 // ─── ON PAGE LOAD ─────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", () => {
   loadPlayers();
-  loadMatches();
+  loadHomepageLeaguePreview();
 });
 
 // ─── PLAYERS ──────────────────────────────────────────────
@@ -231,6 +231,7 @@ function setupPlayerFilters(players) {
   const grid = document.getElementById("roster-grid");
   const filterBar = document.getElementById("roster-filters");
   const count = document.getElementById("roster-filter-count");
+  const expandButton = document.getElementById("roster-expand-button");
   if (!grid || !filterBar) return;
 
   const filters = [
@@ -249,20 +250,38 @@ function setupPlayerFilters(players) {
   });
 
   const cards = [...grid.querySelectorAll(".player-card")];
+  let activeFilter = "all";
+  let expanded = false;
   const applyFilter = value => {
-    let visible = 0;
+    activeFilter = value;
+    const matchingCards = cards.filter(card => value === "all" || card.dataset.positionGroup === value);
+    const visibleLimit = expanded ? matchingCards.length : 4;
+    const visibleCards = new Set(matchingCards.slice(0, visibleLimit));
     cards.forEach(card => {
-      const show = value === "all" || card.dataset.positionGroup === value;
-      card.hidden = !show;
-      if (show) visible += 1;
+      card.hidden = !visibleCards.has(card);
     });
-    if (count) count.textContent = `${visible} ${visible === 1 ? "player" : "players"}`;
+
+    if (count) count.textContent = `${matchingCards.length} ${matchingCards.length === 1 ? "player" : "players"}`;
+    if (expandButton) {
+      const hasHiddenMatches = matchingCards.length > 4;
+      expandButton.hidden = !hasHiddenMatches;
+      expandButton.textContent = expanded ? "Show fewer" : `Show all ${matchingCards.length} players`;
+      expandButton.setAttribute("aria-expanded", String(expanded));
+    }
   };
 
   buttons.forEach(button => button.addEventListener("click", () => {
     buttons.forEach(item => item.setAttribute("aria-pressed", String(item === button)));
+    expanded = false;
     applyFilter(button.dataset.positionFilter);
   }));
+
+  if (expandButton) {
+    expandButton.addEventListener("click", () => {
+      expanded = !expanded;
+      applyFilter(activeFilter);
+    });
+  }
 
   applyFilter("all");
 }
@@ -319,6 +338,243 @@ async function loadMatches() {
     all.innerHTML = "";
     points.innerHTML = "<p class=\"loading\">Could not load the points table.</p>";
     console.error(error);
+  }
+}
+
+function leagueSeasonUrl(leagueSeasonId) {
+  return `league.html?league_season=${encodeURIComponent(leagueSeasonId)}`;
+}
+
+function homepageMatchCard(match, leagueSeason, kind) {
+  const card = document.createElement("a");
+  card.className = `home-preview-match-card is-${kind}`;
+  card.href = leagueSeasonUrl(leagueSeason.id);
+  card.setAttribute("aria-label", `${kind === "upcoming" ? "Upcoming fixture" : "Completed result"}: ${match.home_team} versus ${match.away_team}, ${leagueSeason.league.name}, ${leagueSeason.season.name}`);
+
+  const league = document.createElement("p");
+  league.className = "home-preview-league";
+  league.textContent = leagueSeason.league.name;
+
+  const status = document.createElement("p");
+  status.className = "home-preview-status";
+  status.textContent = kind === "upcoming" ? "Upcoming fixture" : "Final result";
+
+  const matchup = document.createElement("div");
+  matchup.className = "home-preview-matchup";
+  const home = document.createElement("span");
+  home.textContent = match.home_team;
+  const score = document.createElement("strong");
+  score.textContent = kind === "upcoming" ? "vs." : `${match.home_score} - ${match.away_score}`;
+  const away = document.createElement("span");
+  away.textContent = match.away_team;
+  matchup.append(home, score, away);
+
+  const dateValue = kind === "upcoming" ? match.date : match.completed_at || match.date;
+  const matchDate = new Date(dateValue);
+  const dateText = new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "America/New_York",
+  }).format(matchDate);
+  const details = document.createElement("p");
+  details.className = "home-preview-details";
+  const kickoff = kind === "upcoming"
+    ? ` · ${new Intl.DateTimeFormat("en-US", { hour: "numeric", minute: "2-digit", timeZone: "America/New_York", timeZoneName: "short" }).format(matchDate)}`
+    : "";
+  details.textContent = `${dateText}${kickoff} · ${match.location}`;
+
+  card.append(league, status, matchup, details);
+  return card;
+}
+
+async function loadHomepageLeaguePreview() {
+  const preview = document.getElementById("home-match-preview");
+  const viewLeagueLink = document.getElementById("home-match-link");
+  if (!preview || !viewLeagueLink) return;
+
+  try {
+    const leagueResponse = await fetch(`${API}/league-seasons/`);
+    if (!leagueResponse.ok) throw new Error("League seasons request failed");
+    const combinations = await leagueResponse.json();
+    const defaultLeagueSeason = combinations.find(item => item.is_default);
+    if (!defaultLeagueSeason) {
+      preview.replaceChildren();
+      const empty = document.createElement("p");
+      empty.className = "home-preview-empty";
+      empty.textContent = "No default league season has been selected yet.";
+      preview.append(empty);
+      viewLeagueLink.href = "league.html";
+      return;
+    }
+
+    const leagueUrl = leagueSeasonUrl(defaultLeagueSeason.id);
+    viewLeagueLink.href = leagueUrl;
+    const matchesResponse = await fetch(`${API}/matches/?league_season=${encodeURIComponent(defaultLeagueSeason.id)}`);
+    if (!matchesResponse.ok) throw new Error("Default league matches request failed");
+    const matches = await matchesResponse.json();
+
+    const hasFinalScore = match => Number.isInteger(match.home_score) && Number.isInteger(match.away_score);
+    const now = Date.now();
+    const upcoming = matches
+      .filter(match => !hasFinalScore(match) && Date.parse(match.date) >= now)
+      .sort((first, second) => Date.parse(first.date) - Date.parse(second.date));
+    const completed = matches
+      .filter(hasFinalScore)
+      .sort((first, second) => Date.parse(second.completed_at || second.date) - Date.parse(first.completed_at || first.date));
+    const previewMatches = [
+      ...upcoming.slice(0, 3).map(match => ({ match, kind: "upcoming" })),
+      ...completed.slice(0, Math.max(0, 3 - Math.min(3, upcoming.length))).map(match => ({ match, kind: "result" })),
+    ];
+
+    preview.replaceChildren();
+    if (!previewMatches.length) {
+      const empty = document.createElement("p");
+      empty.className = "home-preview-empty";
+      empty.textContent = `No matches have been added to ${defaultLeagueSeason.league.name} · ${defaultLeagueSeason.season.name} yet.`;
+      preview.append(empty);
+      return;
+    }
+
+    previewMatches.forEach(({ match, kind }) => {
+      preview.append(homepageMatchCard(match, defaultLeagueSeason, kind));
+    });
+  } catch (error) {
+    preview.replaceChildren();
+    const message = document.createElement("p");
+    message.className = "home-preview-empty is-error";
+    message.textContent = "League matches could not be loaded.";
+    preview.append(message);
+    viewLeagueLink.href = "league.html";
+    console.error(error);
+  }
+}
+
+function renderLatestMatches(matches) {
+  const list = document.getElementById("latest-matches-list");
+  if (!list) return;
+
+  const latestMatches = [...matches]
+    .filter(match => Number.isFinite(Date.parse(match.date)))
+    .sort((first, second) => Date.parse(second.date) - Date.parse(first.date))
+    .slice(0, 3);
+
+  if (!latestMatches.length) {
+    list.innerHTML = "<p class=\"loading\">No matches scheduled yet.</p>";
+    return;
+  }
+
+  list.innerHTML = latestMatches.map(match => {
+    const hasFinalScore = Number.isInteger(match.home_score) && Number.isInteger(match.away_score);
+    const date = new Date(match.date).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+    return `
+      <article class="latest-match-card">
+        <p class="latest-match-status">${hasFinalScore ? "Final" : "Scheduled"}</p>
+        <h3>${match.home_team} <span>vs.</span> ${match.away_team}</h3>
+        <p class="latest-match-meta">${date} · ${match.location}</p>
+        <p class="latest-match-score">${hasFinalScore ? `${match.home_score} - ${match.away_score}` : "Upcoming"}</p>
+      </article>
+    `;
+  }).join("");
+}
+
+function selectHomepageMatch(matches, now = new Date()) {
+  const hasFinalScore = match => Number.isInteger(match.home_score) && Number.isInteger(match.away_score);
+  const currentTime = now.getTime();
+  const recentResult = matches
+    .filter(match => {
+      if (!hasFinalScore(match) || !match.completed_at) return false;
+      const completedTime = Date.parse(match.completed_at);
+      return Number.isFinite(completedTime) && completedTime <= currentTime && currentTime - completedTime <= 24 * 60 * 60 * 1000;
+    })
+    .sort((first, second) => Date.parse(second.completed_at) - Date.parse(first.completed_at))[0];
+
+  if (recentResult) return { match: recentResult, kind: "result" };
+
+  const upcoming = matches
+    .filter(match => {
+      const matchTime = Date.parse(match.date);
+      return !hasFinalScore(match) && Number.isFinite(matchTime) && matchTime >= currentTime;
+    })
+    .sort((first, second) => Date.parse(first.date) - Date.parse(second.date));
+  const within48Hours = upcoming.find(match => Date.parse(match.date) - currentTime <= 48 * 60 * 60 * 1000);
+
+  if (within48Hours) return { match: within48Hours, kind: "upcoming" };
+  if (upcoming.length) return { match: upcoming[0], kind: "upcoming" };
+
+  const latestResult = matches
+    .filter(hasFinalScore)
+    .sort((first, second) => {
+      const firstTime = Date.parse(first.completed_at || first.date);
+      const secondTime = Date.parse(second.completed_at || second.date);
+      return secondTime - firstTime;
+    })[0];
+
+  return latestResult ? { match: latestResult, kind: "result" } : null;
+}
+
+function renderHomeMatchCard(matches) {
+  const card = document.getElementById("home-match-card");
+  if (!card) return;
+
+  const selection = selectHomepageMatch(matches);
+  const heading = document.getElementById("home-match-heading");
+  const matchDate = document.getElementById("home-match-date");
+  const link = document.getElementById("home-match-link");
+  card.replaceChildren();
+  if (!selection) {
+    const empty = document.createElement("p");
+    empty.className = "home-match-empty";
+    empty.textContent = "No matches are scheduled yet.";
+    card.append(empty);
+    if (heading) heading.textContent = "No fixture scheduled";
+    if (matchDate) matchDate.textContent = "";
+  } else {
+    const { match, kind } = selection;
+    if (heading) heading.textContent = kind === "result" ? "Latest result" : "Next match";
+
+    const dateTime = kind === "result" ? match.completed_at || match.date : match.date;
+    if (matchDate) {
+      matchDate.dateTime = dateTime;
+      matchDate.textContent = new Intl.DateTimeFormat("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+        timeZone: "America/New_York",
+      }).format(new Date(dateTime));
+    }
+
+    const matchup = document.createElement("div");
+    matchup.className = "home-match-matchup";
+    const homeTeam = document.createElement("span");
+    homeTeam.className = "home-match-team";
+    homeTeam.textContent = match.home_team;
+    const separator = document.createElement("strong");
+    separator.className = "home-match-score";
+    separator.textContent = kind === "result" ? `${match.home_score} : ${match.away_score}` : "vs.";
+    const awayTeam = document.createElement("span");
+    awayTeam.className = "home-match-team";
+    awayTeam.textContent = match.away_team;
+    matchup.append(homeTeam, separator, awayTeam);
+    card.append(matchup);
+
+    if (kind === "upcoming") {
+      const details = document.createElement("p");
+      details.className = "home-match-detail";
+      details.textContent = `${new Intl.DateTimeFormat("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+        timeZone: "America/New_York",
+        timeZoneName: "short",
+      }).format(new Date(match.date))} · ${match.location}`;
+      card.append(details);
+    }
+
+    if (link) link.textContent = kind === "result" ? "All results ↗" : "Match centre ↗";
   }
 }
 
@@ -438,6 +694,10 @@ function switchTab(tab, el) {
 }
 
 // ─── PROSPECT FORM ────────────────────────────────────────
+function isValidProspectPhone(phone) {
+  return /^[0-9]{10}$/.test(phone);
+}
+
 async function submitProspect() {
   const feedback = document.getElementById("form-feedback");
 
@@ -451,9 +711,16 @@ async function submitProspect() {
 
   const emailInput = document.getElementById("prospect-email");
 
-  if (!payload.name || !payload.email || !payload.position) {
+  if (!payload.name || !payload.email || !payload.phone || !payload.position) {
     feedback.style.color = "red";
-    feedback.textContent = "Please fill in name, email and position.";
+    feedback.textContent = "Please fill in name, email, phone and position.";
+    return;
+  }
+
+  if (!isValidProspectPhone(payload.phone)) {
+    feedback.style.color = "red";
+    feedback.textContent = "Enter exactly 10 digits, numbers only.";
+    document.getElementById("prospect-phone").focus();
     return;
   }
 

@@ -1,5 +1,6 @@
 import json
 import logging
+import re
 
 from django.conf import settings
 from django.core.mail import send_mail
@@ -10,9 +11,15 @@ from django.core.exceptions import ValidationError
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.http import require_http_methods
 
-from .models import Match, NewsArticle, NewsGalleryImage, Player, Prospect, SiteBranding, Sponsor, SponsorInquiry
+from .models import LeagueSeason, Match, NewsArticle, NewsGalleryImage, Player, Prospect, SiteBranding, Sponsor, SponsorInquiry
 
 logger = logging.getLogger(__name__)
+PHONE_NUMBER_PATTERN = re.compile(r'^[0-9]{10}$')
+
+
+def is_all_united_team(team_name):
+    normalized_name = ''.join(character for character in team_name.casefold() if character.isalnum())
+    return 'allunited' in normalized_name
 
 
 def api_response(data, **kwargs):
@@ -50,6 +57,17 @@ def players(request):
 
 
 def matches(request):
+    queryset = Match.objects.all()
+    league_season_id = request.GET.get('league_season')
+    if league_season_id:
+        try:
+            league_season_id = int(league_season_id)
+        except ValueError:
+            return api_response({'error': 'Choose a valid league and season.'}, status=400)
+        if not LeagueSeason.objects.filter(pk=league_season_id).exists():
+            return api_response({'error': 'League and season not found.'}, status=404)
+        queryset = queryset.filter(league_season_id=league_season_id)
+
     data = [
         {
             'id': match.id,
@@ -59,10 +77,79 @@ def matches(request):
             'location': match.location,
             'home_score': match.home_score,
             'away_score': match.away_score,
+            'completed_at': match.completed_at.isoformat() if match.completed_at else None,
+            'league_season_id': match.league_season_id,
         }
-        for match in Match.objects.all()
+        for match in queryset
     ]
     return api_response(data, safe=False)
+
+
+def league_seasons(request):
+    items = []
+    combinations = LeagueSeason.objects.select_related('league', 'season').prefetch_related('matches')
+    for combination in combinations:
+        record = {
+            'played': 0,
+            'won': 0,
+            'drawn': 0,
+            'lost': 0,
+            'goals_for': 0,
+            'goals_against': 0,
+            'goal_difference': 0,
+            'points': 0,
+        }
+
+        for match in combination.matches.all():
+            if match.home_score is None or match.away_score is None:
+                continue
+            home_is_club = is_all_united_team(match.home_team)
+            away_is_club = is_all_united_team(match.away_team)
+            if home_is_club == away_is_club:
+                continue
+
+            club_score = match.home_score if home_is_club else match.away_score
+            opponent_score = match.away_score if home_is_club else match.home_score
+            record['played'] += 1
+            record['goals_for'] += club_score
+            record['goals_against'] += opponent_score
+            if club_score > opponent_score:
+                record['won'] += 1
+                record['points'] += combination.league.points_for_win
+            elif club_score < opponent_score:
+                record['lost'] += 1
+                record['points'] += combination.league.points_for_loss
+            else:
+                record['drawn'] += 1
+                record['points'] += combination.league.points_for_draw
+        record['goal_difference'] = record['goals_for'] - record['goals_against']
+
+        logo_url = ''
+        if combination.league.logo and combination.league.logo.storage.exists(combination.league.logo.name):
+            logo_url = request.build_absolute_uri(combination.league.logo.url)
+
+        items.append({
+            'id': combination.id,
+            'is_default': combination.is_default,
+            'league': {
+                'id': combination.league_id,
+                'name': combination.league.name,
+                'logo': logo_url,
+                'description': combination.league.description,
+                'official_website': combination.league.official_website,
+                'points_for_win': combination.league.points_for_win,
+                'points_for_draw': combination.league.points_for_draw,
+                'points_for_loss': combination.league.points_for_loss,
+            },
+            'season': {
+                'id': combination.season_id,
+                'name': combination.season.name,
+                'start_date': combination.season.start_date.isoformat() if combination.season.start_date else None,
+                'end_date': combination.season.end_date.isoformat() if combination.season.end_date else None,
+            },
+            'club_record': record,
+        })
+    return api_response(items, safe=False)
 
 
 def news(request):
@@ -140,9 +227,15 @@ def sponsors(request):
 def site_branding(request):
     branding = SiteBranding.objects.first()
     badge_url = ''
+    homepage_background_url = ''
     if branding and branding.league_badge and branding.league_badge.storage.exists(branding.league_badge.name):
         badge_url = request.build_absolute_uri(branding.league_badge.url)
-    return api_response({'league_badge': badge_url})
+    if branding and branding.homepage_background and branding.homepage_background.storage.exists(branding.homepage_background.name):
+        homepage_background_url = request.build_absolute_uri(branding.homepage_background.url)
+    return api_response({
+        'league_badge': badge_url,
+        'homepage_background': homepage_background_url,
+    })
 
 
 @csrf_protect
@@ -169,6 +262,8 @@ def sponsor_inquiries(request):
 
     if not business_name or not contact_name or not phone:
         return api_response({'error': 'Business, contact name, and phone are required.'}, status=400)
+    if not PHONE_NUMBER_PATTERN.fullmatch(phone):
+        return api_response({'error': 'Enter exactly 10 digits for the phone number.'}, status=400)
 
     valid_tiers = {tier for tier, _ in SponsorInquiry.TIER_CHOICES}
     if intended_tier not in valid_tiers:
@@ -228,8 +323,10 @@ def prospects(request):
     except ValidationError:
         return api_response({'error': 'Enter a valid email address.'}, status=400)
 
-    if not name or not email or not position:
-        return api_response({'error': 'Name, email, and position are required.'}, status=400)
+    if not name or not email or not phone or not position:
+        return api_response({'error': 'Name, email, phone, and position are required.'}, status=400)
+    if not PHONE_NUMBER_PATTERN.fullmatch(phone):
+        return api_response({'error': 'Enter exactly 10 digits for the phone number.'}, status=400)
 
     prospect = Prospect.objects.create(
         name=name,

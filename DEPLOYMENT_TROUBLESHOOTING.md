@@ -50,6 +50,43 @@ location /static/ {
 
 If `STATIC_ROOT` is `/home/ubuntu/AllUnitedFC/staticfiles`, use that path instead. Do not guess from an old generated directory. `/media/` should point to `/home/ubuntu/AllUnitedFC/backend/media/`.
 
+## Protect private files
+
+The repository root is also the Nginx document root, so deny hidden files and the entire `/backend/` URL path. The `/media/` alias remains available for intentionally public uploads, while direct requests for the SQLite database and Python source are blocked.
+
+The checked-in Nginx template includes:
+
+```nginx
+location ~ /\. {
+  deny all;
+  access_log off;
+  log_not_found off;
+}
+
+location ^~ /backend/ {
+  deny all;
+}
+```
+
+The `.env` file is listed in `.gitignore`, but still restrict its filesystem permissions on EC2:
+
+```bash
+chmod 600 /home/ubuntu/AllUnitedFC/.env
+git check-ignore -v .env
+git ls-files .env
+```
+
+The ignore check should identify `.env`; `git ls-files .env` should print nothing. Do not display or paste the file contents. Editing the repository template does not update an already installed EC2 config; apply the same rules to `/etc/nginx/sites-available/allunitedfc`, then run `sudo nginx -t && sudo systemctl reload nginx`.
+
+Verify the protection without reading file contents:
+
+```bash
+curl -I https://allunitedfc.com/.env
+curl -I https://allunitedfc.com/backend/db.sqlite3
+```
+
+Both requests should return `403 Forbidden`.
+
 ## Separate Cloudflare from the EC2 origin
 
 An HTTP `301` to HTTPS is expected when HTTP redirects are enabled. Test Nginx locally on EC2 to bypass Cloudflare:

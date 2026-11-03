@@ -8,8 +8,7 @@
     try { const saved = localStorage.getItem('allunited_theme'); document.documentElement.dataset.theme = saved || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); }
     catch { document.documentElement.dataset.theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; }
   </script>
-    <link rel="stylesheet" href="styles.css?v=22" />
-  
+  <link rel="stylesheet" href="styles.css?v=34" />
 </head>
 <body>
   <div id="urgent-alert" class="urgent-alert" role="status" aria-live="polite" hidden></div>
@@ -19,14 +18,13 @@
         <div class="crest nav-crest"><img src="images/PHOTO.jpg" alt="All United FC crest" /></div>
         <span>All United FC</span>
       </div>
-      <span class="league-badge-placeholder nav-league-badge" data-league-badge-slot>League badge pending</span>
     </div>
     <button class="nav-toggle" type="button" aria-label="Open navigation menu" aria-expanded="false" aria-controls="site-navigation">
       <span></span><span></span><span></span>
     </button>
     <div class="nav-links" id="site-navigation">
       <a href="news.html">News</a>
-      <a href="#matches">Matches</a>
+      <a href="league.html">View League</a>
       <a href="#roster">Roster</a>
       <a href="#join">Join Us</a>
       <a href="sponsors.html">Partners</a>
@@ -37,37 +35,54 @@
     </div>
   </nav>
 
-  <!-- HERO -->
-  <div class="hero">
-    <div class="hero-content">
-      <div class="badge">Adult Recreational Club</div>
-      <h1>All <span>United</span> FC</h1>
-      <p>One club. One mission. Play hard, play together, play united.</p>
-      <a href="#matches" class="btn">View Schedule</a>
-      <a href="#roster" class="btn btn-outline">Meet the Team</a>
+  <section class="home-masthead" aria-labelledby="home-hero-title">
+    <div class="home-hero-copy">
+      <p class="home-hero-eyebrow">More than a game</p>
+      <h1 id="home-hero-title">One club.<br />One family.<br /><span>All United.</span></h1>
+      <p class="home-hero-intro">Different stories. The same passion. Football brings us together. United keeps us going.</p>
+      <div class="home-hero-actions">
+        <a class="home-hero-primary" href="#roster">Meet the squad <span aria-hidden="true">↗</span></a>
+        <a class="home-hero-secondary" href="league.html">Match centre <span aria-hidden="true">→</span></a>
+      </div>
+      <details class="home-about" id="about-the-club">
+        <summary>About the club</summary>
+        <div class="home-about-content">
+          <h2>About All United FC</h2>
+          <p>Founded in 2022, All United FC began in the All Nations League with a simple purpose: to give everyone a chance to play soccer, meet new friends, and feel part of a team.</p>
+          <p>What started as a shared love of the game has grown into a community. Through every match, we’ve built friendships, supported one another, and developed together as players and teammates.</p>
+          <p>Today, we’re preparing to compete in another league and take on new challenges. As we grow, our purpose stays the same: bringing people together through soccer and making everyone feel welcome.</p>
+          <p>One club. One mission. All United.</p>
+        </div>
+      </details>
     </div>
-    <div class="hero-crest">
-      <img src="images/PHOTO.jpg" alt="All United FC crest" />
-    </div>
-  </div>
+    <p class="home-masthead-caption">Our club. Our people. Our home.</p>
+  </section>
 
-  <!-- NEWS -->
+  <section class="home-match-strip" id="matches" aria-label="Featured league matches">
+    <div class="container home-match-strip-inner">
+      <div class="home-match-strip-heading">
+        <h2>Matches</h2>
+        <a class="home-match-link" id="home-match-link" href="league.html">View League Matches <span aria-hidden="true">→</span></a>
+      </div>
+      <div class="home-match-preview-row" id="home-match-preview" aria-live="polite">
+        <p class="loading">Loading league matches...</p>
+      </div>
+    </div>
+  </section>
+
   <section class="news" id="news">
     <div class="container">
       <div class="section-label">Latest</div>
-      <div class="section-title">news & Media</div>
+      <div class="section-title">news &amp; Media</div>
       <div class="divider"></div>
-
       <div class="highlights-layout">
         <article class="highlight-featured" id="featured-highlight">
           <p class="loading">Loading highlight...</p>
         </article>
-
         <div class="highlight-grid" id="highlight-grid">
           <p class="loading">Loading highlights...</p>
         </div>
       </div>
-
       <div class="highlight-dots" id="highlight-dots" aria-label="Featured story navigation"></div>
       <div class="highlight-actions">
         <a href="news.html" class="view-all-media">View all media</a>
@@ -75,34 +90,6 @@
     </div>
   </section>
 
-  <!-- MATCHES -->
-  <section class="matches" id="matches">
-    <div class="container">
-      <div class="section-label">Fixtures</div>
-      <div class="section-title">Match Schedule & Results</div>
-      <div class="divider"></div>
-      <div class="matches-tabs">
-        <div class="tab active" onclick="switchTab('results', this)">Results</div>
-        <div class="tab" onclick="switchTab('upcoming', this)">Upcoming</div>
-        <div class="tab" onclick="switchTab('all', this)">All Matches</div>
-        <div class="tab" onclick="switchTab('points', this)">Table</div>
-      </div>
-      <div id="results-list">
-        <p class="loading">Loading results...</p>
-      </div>
-      <div id="upcoming-list" style="display:none;">
-        <p class="loading">Loading upcoming matches...</p>
-      </div>
-      <div id="all-list" style="display:none;">
-        <p class="loading">Loading all matches...</p>
-      </div>
-      <div id="points-list" style="display:none;">
-        <p class="loading">Loading points table...</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- ROSTER -->
   <section class="roster" id="roster">
     <div class="container">
       <div class="section-label">The Squad</div>
@@ -120,6 +107,11 @@
           <div id="player-spotlight-content" aria-live="polite"></div>
         </aside>
       </div>
+      <div class="roster-expand-actions">
+        <button class="roster-expand-button" id="roster-expand-button" type="button" aria-controls="roster-grid" aria-expanded="false" hidden>
+          Show all players
+        </button>
+      </div>
       <dialog class="player-profile-dialog" id="player-profile-dialog" aria-labelledby="player-profile-title">
         <button class="player-profile-close" id="player-profile-close" type="button" aria-label="Close player profile">&times;</button>
         <div id="player-profile-content"></div>
@@ -127,7 +119,6 @@
     </div>
   </section>
 
-  <!-- PROSPECT FORM -->
   <section class="join" id="join">
     <div class="container">
       <div class="section-label">Get Involved</div>
@@ -143,8 +134,9 @@
           <input type="email" id="prospect-email" placeholder="your@email.com" required />
         </div>
         <div class="form-group">
-          <label>Phone</label>
-          <input type="text" id="prospect-phone" placeholder="+1 (000) 000-0000" />
+          <label for="prospect-phone">Phone</label>
+          <input type="tel" id="prospect-phone" inputmode="numeric" autocomplete="tel" minlength="10" maxlength="10" pattern="[0-9]{10}" aria-describedby="prospect-phone-hint" placeholder="9195550142" required />
+          <small id="prospect-phone-hint">Enter exactly 10 digits, numbers only.</small>
         </div>
         <div class="form-group">
           <label>Preferred Position</label>
@@ -166,32 +158,45 @@
     </div>
   </section>
 
-  <!-- FOOTER -->
-  <footer>
-    <div class="footer-brand-marks">
-      <div class="crest footer-crest"><img src="images/PHOTO.jpg" alt="All United FC crest" /></div>
-      <span class="league-badge-placeholder footer-league-badge" data-league-badge-slot>League badge pending</span>
+  <footer class="home-footer">
+    <div class="home-footer-layout">
+      <div class="home-footer-brand">
+        <div class="footer-brand-marks">
+          <div class="crest footer-crest"><img src="images/PHOTO.jpg" alt="All United FC crest" /></div>
+        </div>
+        <h3>All United FC</h3>
+        <p>Durham, NC</p>
+        <p>One club. One mission.</p>
+        <div class="sponsor-footer-ribbon" id="footer-sponsors" hidden></div>
+      </div>
+      <nav class="home-footer-columns" aria-label="Footer">
+        <section class="home-footer-column" aria-labelledby="footer-get-involved">
+          <h4 id="footer-get-involved">Get Involved</h4>
+          <a href="#join">Join the Team</a>
+          <a href="sponsors.html#sponsor-inquiry">Become a sponsor</a>
+          <a href="sponsors.html#sponsor-inquiry">Sponsor Inquiry</a>
+        </section>
+        <section class="home-footer-column" aria-labelledby="footer-about-club">
+          <h4 id="footer-about-club">About the Club</h4>
+          <a href="#roster">Team Roster</a>
+          <a href="news.html">News</a>
+          <a href="league.html">League Matches</a>
+          <a href="sponsors.html">Partners</a>
+        </section>
+        <section class="home-footer-column" aria-labelledby="footer-connect">
+          <h4 id="footer-connect">Connect</h4>
+          <a href="https://www.instagram.com/allunitedcf?stkn=aGx4cnZqMmhqeGx4cnZqMmhqeG1r" target="_blank" rel="noopener noreferrer">Instagram</a>
+          <span>Email</span>
+          <span>Facebook</span>
+        </section>
+      </nav>
     </div>
-    <h3>All United FC</h3>
-    <p>Adult Recreational Club · Durham, NC</p>
-    <div class="sponsor-footer-ribbon" id="footer-sponsors" hidden></div>
-    <div class="social-links">
-      <a href="#">Facebook</a>
-      <a href="#">Twitter</a>
-      <a href="https://www.instagram.com/allunitedcf?stkn=aGx4cnZqMmhqeG1r">Instagram</a>
-      <a href="news.html">News</a>
-      <a href="#matches">Matches</a>
-      <a href="#roster">Roster</a>
-      <a href="#join">Join Us</a>
-      <a href="sponsors.html">Partners</a>
-    </div>
-    <div class="copy">© 2026 All United FC. All rights reserved.</div>
+    <div class="copy">&copy; 2026 All United FC. All rights reserved.</div>
   </footer>
 
-  <!-- SCRIPTS -->
-  <script src="site.js?v=8"></script>
-  <script src="sponsors.js?v=1"></script>
-  <script src="players.js?v=11"></script>
+  <script src="site.js?v=9"></script>
+  <script src="sponsors.js?v=2"></script>
+  <script src="players.js?v=15"></script>
   <script src="news.js?v=9"></script>
 </body>
 </html>

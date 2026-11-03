@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Match, NewsArticle, NewsGalleryImage, Player, Prospect, SiteBranding, Sponsor, SponsorInquiry
+from .models import League, LeagueSeason, Match, NewsArticle, NewsGalleryImage, Player, Prospect, Season, SiteBranding, Sponsor, SponsorInquiry
 
 
 @admin.register(Player)
@@ -20,8 +20,34 @@ class PlayerAdmin(admin.ModelAdmin):
 
 @admin.register(Match)
 class MatchAdmin(admin.ModelAdmin):
-	list_display = ('date', 'home_team', 'away_team', 'location')
-	list_filter = ('date',)
+	list_display = ('date', 'home_team', 'away_team', 'home_score', 'away_score', 'completed_at', 'league_season', 'location')
+	list_filter = ('date', 'league_season__league', 'league_season__season')
+	search_fields = ('home_team', 'away_team', 'location')
+
+
+@admin.register(League)
+class LeagueAdmin(admin.ModelAdmin):
+	list_display = ('name', 'official_website', 'points_for_win', 'points_for_draw', 'points_for_loss')
+	search_fields = ('name', 'description')
+
+
+@admin.register(Season)
+class SeasonAdmin(admin.ModelAdmin):
+	list_display = ('name', 'start_date', 'end_date')
+	search_fields = ('name',)
+	ordering = ('-start_date', 'name')
+
+
+@admin.register(LeagueSeason)
+class LeagueSeasonAdmin(admin.ModelAdmin):
+	list_display = ('season', 'league', 'is_default')
+	list_filter = ('season', 'league', 'is_default')
+	search_fields = ('league__name', 'season__name')
+
+	def save_model(self, request, obj, form, change):
+		if obj.is_default:
+			LeagueSeason.objects.exclude(pk=obj.pk).filter(is_default=True).update(is_default=False)
+		super().save_model(request, obj, form, change)
 
 
 class NewsGalleryImageInline(admin.TabularInline):
@@ -64,7 +90,10 @@ class SponsorInquiryAdmin(admin.ModelAdmin):
 
 @admin.register(SiteBranding)
 class SiteBrandingAdmin(admin.ModelAdmin):
-	list_display = ('league_badge',)
+	list_display = ('league_badge', 'homepage_background')
+	fieldsets = (
+		('Club branding', {'fields': ('league_badge', 'homepage_background')}),
+	)
 
 	def has_add_permission(self, request):
 		return not SiteBranding.objects.exists() and super().has_add_permission(request)

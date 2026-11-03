@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>League & Seasons | All United FC</title>
+  <script>
+    try { const saved = localStorage.getItem('allunited_theme'); document.documentElement.dataset.theme = saved || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); }
+    catch { document.documentElement.dataset.theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; }
+  </script>
+  <link rel="stylesheet" href="styles.css?v=35" />
+</head>
+<body>
+  <div id="urgent-alert" class="urgent-alert" role="status" aria-live="polite" hidden></div>
+  <nav>
+    <div class="nav-brand-group">
+      <a class="news-page-brand" href="index.html">
+        <span class="crest"><img src="images/PHOTO.jpg" alt="All United FC crest" /></span>
+        <strong>All United FC</strong>
+      </a>
+    </div>
+    <button class="nav-toggle" type="button" aria-label="Open navigation menu" aria-expanded="false" aria-controls="site-navigation">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="nav-links" id="site-navigation">
+      <a href="index.html#roster">Roster</a>
+      <a href="news.html">News</a>
+      <a href="league.html" aria-current="page">League</a>
+      <a href="sponsors.html">Partners</a>
+      <a href="index.html#join">Join Us</a>
+      <button class="theme-toggle" type="button" data-theme-toggle aria-pressed="false" aria-label="Switch to dark theme">
+        <span class="theme-toggle-icon" aria-hidden="true">☾</span>
+        <span class="theme-toggle-label">Dark mode</span>
+      </button>
+    </div>
+  </nav>
+
+  <main class="league-page">
+    <header class="league-page-hero">
+      <div class="container">
+        <div class="section-label">All United FC</div>
+        <h1>League &amp; Season Hub</h1>
+        <p>Follow our current campaign or explore past seasons.</p>
+      </div>
+    </header>
+
+    <section class="league-browser" aria-label="Choose a league and season">
+      <div class="container league-filter-bar">
+        <div class="league-filter-field">
+          <label for="league-season-select">Season</label>
+          <select id="league-season-select" disabled aria-describedby="league-filter-help">
+            <option value="">Loading seasons...</option>
+          </select>
+        </div>
+        <div class="league-filter-field">
+          <label for="league-select">League</label>
+          <select id="league-select" disabled>
+            <option value="">Loading leagues...</option>
+          </select>
+        </div>
+        <span class="league-season-badge" id="league-season-badge" hidden></span>
+        <span class="league-filter-help" id="league-filter-help">Choose one league and season at a time.</span>
+      </div>
+    </section>
+
+    <div class="container league-content" id="league-content" aria-live="polite" aria-busy="true">
+      <p class="league-state-message">Loading league information...</p>
+    </div>
+  </main>
+
+  <footer class="home-footer">
+    <div class="home-footer-layout">
+      <div class="home-footer-brand">
+        <div class="footer-brand-marks">
+          <div class="crest footer-crest"><img src="images/PHOTO.jpg" alt="All United FC crest" /></div>
+        </div>
+        <h3>All United FC</h3>
+        <p>Durham, NC</p>
+        <p>One club. One mission.</p>
+        <div class="sponsor-footer-ribbon" id="footer-sponsors" hidden></div>
+      </div>
+      <nav class="home-footer-columns" aria-label="Footer">
+        <section class="home-footer-column" aria-labelledby="footer-get-involved">
+          <h4 id="footer-get-involved">Get Involved</h4>
+          <a href="index.html#join">Join the Team</a>
+          <a href="sponsors.html#sponsor-inquiry">Become a sponsor</a>
+          <a href="sponsors.html#sponsor-inquiry">Sponsor Inquiry</a>
+        </section>
+        <section class="home-footer-column" aria-labelledby="footer-about-club">
+          <h4 id="footer-about-club">About the Club</h4>
+          <a href="index.html#roster">Team Roster</a>
+          <a href="news.html">News</a>
+          <a href="league.html">League Matches</a>
+          <a href="sponsors.html">Partners</a>
+        </section>
+        <section class="home-footer-column" aria-labelledby="footer-connect">
+          <h4 id="footer-connect">Connect</h4>
+          <a href="https://www.instagram.com/allunitedcf?stkn=aGx4cnZqMmhqeGx4cnZqMmhqeG1r" target="_blank" rel="noopener noreferrer">Instagram</a>
+          <span>Email</span>
+          <span>Facebook</span>
+        </section>
+      </nav>
+    </div>
+    <div class="copy">&copy; 2026 All United FC. All rights reserved.</div>
+  </footer>
+
+  <script src="site.js?v=9"></script>
+  <script src="league.js?v=4"></script>
+  <script src="sponsors.js?v=2"></script>
+</body>
+</html>

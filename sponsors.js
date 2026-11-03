@@ -200,6 +200,13 @@ async function submitSponsorInquiry(event) {
     return;
   }
 
+  const phone = form.elements.phone.value.trim();
+  if (!/^[0-9]{10}$/.test(phone)) {
+    feedback.textContent = "Enter exactly 10 digits, numbers only.";
+    form.elements.phone.focus();
+    return;
+  }
+
   const values = new FormData(form);
   if (values.get("website_url")) return;
 

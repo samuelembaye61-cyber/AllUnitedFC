@@ -32,6 +32,54 @@ class Player(models.Model):
 		return f'#{self.number} {self.name}'
 
 
+class League(models.Model):
+	name = models.CharField(max_length=120, unique=True)
+	logo = models.ImageField(upload_to='leagues/', blank=True)
+	description = models.TextField(blank=True)
+	official_website = models.URLField(blank=True)
+	points_for_win = models.PositiveSmallIntegerField(default=3)
+	points_for_draw = models.PositiveSmallIntegerField(default=1)
+	points_for_loss = models.PositiveSmallIntegerField(default=0)
+
+	class Meta:
+		ordering = ['name']
+
+	def __str__(self):
+		return self.name
+
+
+class Season(models.Model):
+	name = models.CharField(max_length=100, unique=True)
+	start_date = models.DateField(null=True, blank=True)
+	end_date = models.DateField(null=True, blank=True)
+
+	class Meta:
+		ordering = ['-start_date', 'name']
+
+	def __str__(self):
+		return self.name
+
+
+class LeagueSeason(models.Model):
+	league = models.ForeignKey(League, on_delete=models.CASCADE, related_name='league_seasons')
+	season = models.ForeignKey(Season, on_delete=models.CASCADE, related_name='league_seasons')
+	is_default = models.BooleanField(default=False)
+
+	class Meta:
+		ordering = ['-is_default', '-season__start_date', 'league__name']
+		constraints = [
+			models.UniqueConstraint(fields=['league', 'season'], name='unique_league_season'),
+			models.UniqueConstraint(
+				fields=['is_default'],
+				condition=models.Q(is_default=True),
+				name='one_default_league_season',
+			),
+		]
+
+	def __str__(self):
+		return f'{self.league.name} - {self.season.name}'
+
+
 class Match(models.Model):
 	date = models.DateTimeField()
 	home_team = models.CharField(max_length=120)
@@ -39,6 +87,18 @@ class Match(models.Model):
 	location = models.CharField(max_length=200)
 	home_score = models.PositiveSmallIntegerField(null=True, blank=True)
 	away_score = models.PositiveSmallIntegerField(null=True, blank=True)
+	league_season = models.ForeignKey(
+		LeagueSeason,
+		null=True,
+		blank=True,
+		on_delete=models.SET_NULL,
+		related_name='matches',
+	)
+	completed_at = models.DateTimeField(
+		null=True,
+		blank=True,
+		help_text='Record when the match finished to feature its result for the next 24 hours.',
+	)
 
 	class Meta:
 		ordering = ['date']
@@ -159,6 +219,11 @@ class SponsorInquiry(models.Model):
 
 class SiteBranding(models.Model):
 	league_badge = models.ImageField(upload_to='branding/', blank=True)
+	homepage_background = models.ImageField(
+		upload_to='branding/',
+		blank=True,
+		help_text='Wide team photo for the homepage hero. The built-in club image is used when this is blank.',
+	)
 
 	class Meta:
 		verbose_name = 'site branding'
