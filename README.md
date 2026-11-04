@@ -89,6 +89,17 @@ Admin dashboard:
 http://127.0.0.1:8001/admin/
 ```
 
+## Reusing This Backend for Another Team
+
+Run one deployment per team, each with its own `.env`, database, and `media/` folder:
+
+1. Copy `.env.example` to `.env`; set `DJANGO_SECRET_KEY`, hosts, email, and the `CLUB_NAME`, `CLUB_SHORT_NAME`, `CLUB_TAGLINE`, `CLUB_NAME_ALIASES` values.
+2. Run `python backend/manage.py migrate` and `createsuperuser`; optionally `loaddata players matches` for sample data.
+3. In Django admin, open **Club settings** to override the club identity and upload badge/backgrounds.
+4. `CLUB_NAME` (plus short name and aliases) is how match records are recognised as your team when computing league records.
+5. `/api/site-branding/` returns `club_name`, `club_short_name`, and `club_tagline` for the frontend. The bundled HTML/JS pages still contain All United FC text and must be updated per team.
+6. Adapt `deploy/systemd/club-site.service` and `deploy/nginx/club-site.conf` (paths and `server_name`).
+
 ## Updating Data
 
 Use Django admin to add or update players, matches, news articles, and signups. Fixture files are useful for repeatable initial data:

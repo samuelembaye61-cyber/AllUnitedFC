@@ -1,8 +1,8 @@
 version: '3.4'
 
 services:
-  allunitedfc:
-    image: allunitedfc
+  club-site:
+    image: club-site
     build:
       context: .
       dockerfile: ./Dockerfile

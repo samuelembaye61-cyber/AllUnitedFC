@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.core.validators import RegexValidator
@@ -218,6 +219,14 @@ class SponsorInquiry(models.Model):
 
 
 class SiteBranding(models.Model):
+	club_name = models.CharField(max_length=120, blank=True, help_text='Overrides the CLUB_NAME environment default.')
+	club_short_name = models.CharField(max_length=60, blank=True)
+	club_tagline = models.CharField(max_length=200, blank=True)
+	club_name_aliases = models.CharField(
+		max_length=300,
+		blank=True,
+		help_text='Comma-separated alternate spellings used in match records to recognise your team.',
+	)
 	league_badge = models.ImageField(upload_to='branding/', blank=True)
 	homepage_background = models.ImageField(
 		upload_to='branding/',
@@ -240,6 +249,16 @@ class SiteBranding(models.Model):
 
 	def __str__(self):
 		return 'Site branding'
+
+	@classmethod
+	def club_identity(cls):
+		branding = cls.objects.first()
+		name = (branding and branding.club_name) or settings.CLUB_NAME
+		short_name = (branding and branding.club_short_name) or settings.CLUB_SHORT_NAME or name
+		tagline = (branding and branding.club_tagline) or settings.CLUB_TAGLINE
+		raw_aliases = (branding and branding.club_name_aliases) or settings.CLUB_NAME_ALIASES
+		aliases = [alias.strip() for alias in raw_aliases.split(',') if alias.strip()]
+		return {'name': name, 'short_name': short_name, 'tagline': tagline, 'aliases': aliases}
 
 
 class Prospect(models.Model):

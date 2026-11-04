@@ -154,8 +154,16 @@ EMAIL_PORT = int(os.environ.get('DJANGO_EMAIL_PORT', '587'))
 EMAIL_USE_TLS = os.environ.get('DJANGO_EMAIL_USE_TLS', 'True').lower() == 'true'
 EMAIL_HOST_USER = os.environ.get('DJANGO_EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.environ.get('DJANGO_EMAIL_HOST_PASSWORD', '')
-DEFAULT_FROM_EMAIL = os.environ.get('DJANGO_DEFAULT_FROM_EMAIL', 'noreply@allunitedfc.com')
+DEFAULT_FROM_EMAIL = os.environ.get('DJANGO_DEFAULT_FROM_EMAIL', 'noreply@example.com')
 SPONSOR_INQUIRY_NOTIFICATION_EMAIL = os.environ.get('SPONSOR_INQUIRY_NOTIFICATION_EMAIL', '')
+
+# Club identity defaults. Each team deployment sets these in its own .env;
+# values saved in Django admin (Club settings) take precedence.
+CLUB_NAME = os.environ.get('CLUB_NAME', 'My Club FC')
+CLUB_SHORT_NAME = os.environ.get('CLUB_SHORT_NAME', '')
+CLUB_TAGLINE = os.environ.get('CLUB_TAGLINE', '')
+# Comma-separated alternate spellings used in match records for the club's own team.
+CLUB_NAME_ALIASES = os.environ.get('CLUB_NAME_ALIASES', '')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
