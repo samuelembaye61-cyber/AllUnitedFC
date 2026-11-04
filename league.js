@@ -276,7 +276,7 @@ async function loadLeagueHub() {
       seasonSelect.disabled = true;
       leagueSelect.disabled = true;
       seasonBadge.hidden = true;
-      showLeagueMessage("No leagues or seasons have been added yet. Ask the captain to add them in Django admin.");
+      showLeagueMessage("No leagues or seasons have been added yet. Please check back later.");
       return;
     }
 
@@ -310,3 +310,4 @@ async function loadLeagueHub() {
 }
 
 document.addEventListener("DOMContentLoaded", loadLeagueHub);
+
