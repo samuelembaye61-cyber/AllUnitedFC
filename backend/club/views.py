@@ -17,9 +17,18 @@ logger = logging.getLogger(__name__)
 PHONE_NUMBER_PATTERN = re.compile(r'^[0-9]{10}$')
 
 
-def is_all_united_team(team_name):
-    normalized_name = ''.join(character for character in team_name.casefold() if character.isalnum())
-    return 'allunited' in normalized_name
+def normalize_team_name(team_name):
+    return ''.join(character for character in team_name.casefold() if character.isalnum())
+
+
+def club_name_matcher():
+    identity = SiteBranding.club_identity()
+    candidates = {
+        normalize_team_name(value)
+        for value in (identity['name'], identity['short_name'], *identity['aliases'])
+    }
+    candidates.discard('')
+    return lambda team_name: any(candidate in normalize_team_name(team_name) for candidate in candidates)
 
 
 def api_response(data, **kwargs):
@@ -87,6 +96,7 @@ def matches(request):
 
 def league_seasons(request):
     items = []
+    is_club_team = club_name_matcher()
     combinations = LeagueSeason.objects.select_related('league', 'season').prefetch_related('matches')
     for combination in combinations:
         record = {
@@ -103,8 +113,8 @@ def league_seasons(request):
         for match in combination.matches.all():
             if match.home_score is None or match.away_score is None:
                 continue
-            home_is_club = is_all_united_team(match.home_team)
-            away_is_club = is_all_united_team(match.away_team)
+            home_is_club = is_club_team(match.home_team)
+            away_is_club = is_club_team(match.away_team)
             if home_is_club == away_is_club:
                 continue
 
@@ -226,6 +236,7 @@ def sponsors(request):
 
 def site_branding(request):
     branding = SiteBranding.objects.first()
+    identity = SiteBranding.club_identity()
     badge_url = ''
     homepage_background_url = ''
     league_background_url = ''
@@ -239,6 +250,9 @@ def site_branding(request):
         'league_badge': badge_url,
         'homepage_background': homepage_background_url,
         'league_background': league_background_url,
+        'club_name': identity['name'],
+        'club_short_name': identity['short_name'],
+        'club_tagline': identity['tagline'],
     })
 
 

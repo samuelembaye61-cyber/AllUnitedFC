@@ -92,6 +92,7 @@ class SponsorInquiryAdmin(admin.ModelAdmin):
 class SiteBrandingAdmin(admin.ModelAdmin):
 	list_display = ('league_badge', 'homepage_background', 'league_background')
 	fieldsets = (
+		('Club identity', {'fields': ('club_name', 'club_short_name', 'club_tagline', 'club_name_aliases')}),
 		('Club settings', {'fields': ('league_badge', 'homepage_background', 'league_background')}),
 	)
 

@@ -133,6 +133,7 @@ class MatchApiTests(TestCase):
 		legacy = next(item for item in all_response.json() if item['id'] == legacy_match.id)
 		self.assertIsNone(legacy['league_season_id'])
 
+@override_settings(CLUB_NAME='All United FC', CLUB_NAME_ALIASES='allunited')
 class LeagueSeasonApiTests(TestCase):
 	def test_default_and_record_use_only_completed_matches_in_pair(self):
 		season = Season.objects.create(name='Spring 2027')
@@ -362,3 +363,17 @@ class SponsorApiTests(TestCase):
 		self.assertEqual(response.status_code, 202)
 		self.assertEqual(SponsorInquiry.objects.count(), 0)
 
+
+
+@override_settings(CLUB_NAME='Rivertown United', CLUB_SHORT_NAME='', CLUB_NAME_ALIASES='RTU')
+class ClubIdentityTests(TestCase):
+	def test_branding_endpoint_uses_env_defaults(self):
+		data = self.client.get('/api/site-branding/').json()
+		self.assertEqual(data['club_name'], 'Rivertown United')
+		self.assertEqual(data['club_short_name'], 'Rivertown United')
+
+	def test_admin_values_override_env_defaults(self):
+		SiteBranding.objects.create(club_name='Hilltop FC', club_tagline='Up the hill')
+		data = self.client.get('/api/site-branding/').json()
+		self.assertEqual(data['club_name'], 'Hilltop FC')
+		self.assertEqual(data['club_tagline'], 'Up the hill')
